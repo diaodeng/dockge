@@ -251,6 +251,24 @@ export class DockerSocketHandler extends AgentSocketHandler {
                 callbackError(e, callback);
             }
         });
+
+        // prune images
+        agentSocket.on("pruneImages", async (callback) => {
+            try {
+                checkLogin(socket);
+
+                let exitCode = await Terminal.exec(server, socket, "console", "docker", ["image", "prune", "-a", "-f"], "");
+
+                if (exitCode !== 0) {
+                    callbackError(new Error("Failed to restart, please check the terminal output for more information."), callback);
+                    return;
+                }
+                callbackResult({ ok: true, msg: exitCode }, callback);
+
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
     }
 
     async saveStack(server : DockgeServer, name : unknown, composeYAML : unknown, composeENV : unknown, isAdd : unknown) : Promise<Stack> {

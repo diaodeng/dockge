@@ -61,6 +61,12 @@
                             </li>-->
 
                             <li>
+                                <button class="dropdown-item" @click="pruneImages">
+                                    <font-awesome-icon icon="trash" /> {{ $t("pruneImages") }}
+                                </button>
+                            </li>
+
+                            <li>
                                 <button class="dropdown-item" @click="scanFolder">
                                     <font-awesome-icon icon="arrows-rotate" /> {{ $t("scanFolder") }}
                                 </button>
@@ -147,6 +153,12 @@ export default {
     methods: {
         scanFolder() {
             this.$root.emitAgent(ALL_ENDPOINTS, "requestStackList", (res) => {
+                this.$root.toastRes(res);
+            });
+        },
+
+        pruneImages() {
+            this.$root.emitAgent(ALL_ENDPOINTS, "pruneImages", (res) => {
                 this.$root.toastRes(res);
             });
         },
