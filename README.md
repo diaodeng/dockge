@@ -162,3 +162,20 @@ Yes, you can.
 ## Others
 
 Dockge is built on top of [Compose V2](https://docs.docker.com/compose/migrate/). `compose.yaml`  also known as `docker-compose.yml`.
+
+
+## develop
+dev
+```bash
+npm run dev
+```
+
+build
+```bash
+npm install
+npm run build:frontend
+
+docker build -t louislam/dockge:build-healthcheck -f docker/BuildHealthCheck.Dockerfile .
+docker build  -t louislam/dockge:base -f docker/Base.Dockerfile .
+docker build  -t panda62/dockge:test -f docker/Dockerfile .
+```

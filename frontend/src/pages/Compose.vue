@@ -586,7 +586,14 @@ export default {
 
             this.$root.emitAgent(this.endpoint, "serviceStatusList", this.stack.name, (res) => {
                 if (res.ok) {
-                    this.serviceStatusList = res.serviceStatusList;
+                    let resData = res.serviceStatusList;
+                    for (const key in resData) {  // 兼容老版本数据结构
+                        if (!Array.isArray(resData[key])) {
+                            resData[key] = [{ "status": resData[key],
+                                "name": key }];
+                        }
+                    }
+                    this.serviceStatusList = resData;
                 }
                 if (!this.stopServiceStatusTimeout) {
                     this.startServiceStatusTimeout();

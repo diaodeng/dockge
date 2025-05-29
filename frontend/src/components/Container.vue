@@ -15,31 +15,47 @@
                 </div>
             </div>
             <div class="col-7">
-                <div class="function">
-                    <router-link v-if="!isEditMode" class="btn btn-normal" :to="terminalRouteLink" disabled="">
+                <div class="function btn-group-sm" role="group">
+                    <router-link
+                        v-if="!isEditMode" :to="terminalRouteLink"
+                        type="button" class="btn btn-normal me-2" disabled=""
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Bash"
+                    >
                         <font-awesome-icon icon="terminal" />
-                        Bash
                     </router-link>
-                    <button v-if="status !== 'running' && status !== 'healthy'"
-                            class="btn btn-primary me-2"
-                            :disabled="processing"
-                            @click="startService">
-                        <font-awesome-icon icon="play" class="me-1" />
-                        Start
+                    <button
+                        v-if="status !== 'running' && status !== 'healthy'"
+                        class="btn btn-primary me-2 small"
+                        type="button"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Start"
+                        :disabled="processing"
+                        @click="startService"
+                    >
+                        <font-awesome-icon icon="play" class="p-0 m-0" />
                     </button>
-                    <button v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
-                            class="btn btn-danger me-2"
-                            :disabled="processing"
-                            @click="stopService">
-                        <font-awesome-icon icon="stop" class="me-1" />
-                        Stop
+                    <button
+                        v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
+                        class="btn btn-danger small me-2 circle"
+                        type="button"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Stop"
+                        :disabled="processing"
+                        @click="stopService"
+                    >
+                        <font-awesome-icon icon="stop" class="" />
                     </button>
-                    <button v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
-                            class="btn btn-warning me-2"
-                            :disabled="processing"
-                            @click="restartService">
-                        <font-awesome-icon icon="sync" class="me-1" />
-                        Restart
+                    <button
+                        v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
+                        class="btn btn-warning me-2 small"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        data-bs-title="Restart"
+                        type="button"
+                        :disabled="processing"
+                        @click="restartService"
+                    >
+                        <font-awesome-icon icon="sync" class="" />
                     </button>
                 </div>
             </div>
@@ -220,6 +236,7 @@ export default defineComponent({
         return {
             showConfig: false,
             expandedStats: false,
+            processing: false,
         };
     },
     computed: {
@@ -321,25 +338,25 @@ export default defineComponent({
             }
         },
         statsInstances() {
-            if (!this.serviceStatus) {
+            if (!this.serviceStatus || this.serviceStatus.length === 0 || typeof this.serviceStatus === "string") {
                 return [];
             }
-
             return this.serviceStatus
                 .map(s => this.dockerStats[s.name])
                 .filter(s => !!s)
-                .sort((a, b) => a.Name.localeCompare(b.Name));
+                .sort((a, b) => a.Name.localeCompare(b.Name)) || {};
         },
         status() {
             if (!this.serviceStatus) {
                 return "N/A";
             }
-            return this.serviceStatus[0].status;
+            return typeof this.serviceStatus === "string" ? this.serviceStatus : this.serviceStatus[0].status;
         }
     },
     mounted() {
+        this.processing = false;
         if (this.first) {
-            //this.showConfig = true;
+            // this.showConfig = true;
         }
     },
     methods: {
