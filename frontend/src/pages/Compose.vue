@@ -181,32 +181,33 @@
                     <div v-if="!stack.isGitRepo || (stack.isGitRepo && !isEditMode)">
                         <h4 class="mb-3">{{ $tc("container", 2) }}</h4>
 
-                    <div v-if="isEditMode && !stack.isGitRepo" class="input-group mb-3">
-                        <input
-                            v-model="newContainerName"
-                            :placeholder="$t(`New Container Name...`)"
-                            class="form-control"
-                            @keyup.enter="addContainer"
-                        />
-                        <button class="btn btn-primary" @click="addContainer">
-                            {{ $t("addContainer") }}
-                        </button>
-                    </div>
+                        <div v-if="isEditMode && !stack.isGitRepo" class="input-group mb-3">
+                            <input
+                                v-model="newContainerName"
+                                :placeholder="$t(`New Container Name...`)"
+                                class="form-control"
+                                @keyup.enter="addContainer"
+                            />
+                            <button class="btn btn-primary" @click="addContainer">
+                                {{ $t("addContainer") }}
+                            </button>
+                        </div>
 
-                    <div ref="containerList">
-                        <Container
-                            v-for="(service, name) in jsonConfig.services"
-                            :key="name"
-                            :name="name"
-                            :is-edit-mode="isEditMode"
-                            :first="name === Object.keys(jsonConfig.services)[0]"
-                            :serviceStatus="serviceStatusList[name]"
-                            :dockerStats="dockerStats"
-                            :processing="processing"
-                            @start-service="startService"
-                            @stop-service="stopService"
-                            @restart-service="restartService"
-                        />
+                        <div ref="containerList">
+                            <Container
+                                v-for="(service, name) in jsonConfig.services"
+                                :key="name"
+                                :name="name"
+                                :is-edit-mode="isEditMode"
+                                :first="name === Object.keys(jsonConfig.services)[0]"
+                                :serviceStatus="serviceStatusList[name]"
+                                :dockerStats="dockerStats"
+                                :processing="processing"
+                                @start-service="startService"
+                                @stop-service="stopService"
+                                @restart-service="restartService"
+                            />
+                        </div>
                     </div>
 
                     <button v-if="false && isEditMode && !stack.isGitRepo && jsonConfig.services && Object.keys(jsonConfig.services).length > 0" class="btn btn-normal mb-3" @click="addContainer">{{ $t("addContainer") }}</button>
@@ -913,7 +914,7 @@ export default {
         stackNameToLowercase() {
             this.stack.name = this.stack?.name?.toLowerCase();
         },
-        
+
         async copyWebhookToClipboard() {
             try {
                 await navigator.clipboard.writeText(this.stack.webhook);
@@ -926,7 +927,7 @@ export default {
         selectText(event) {
             event.target.select();
         },
-        
+
         startService(serviceName) {
             this.processing = true;
 
