@@ -10,45 +10,45 @@
             </h1>
 
             <div v-if="stack.isManagedByDockge" class="mb-3">
-                <div class="btn-group me-2" role="group">
+                <div class="btn-group me-2 btn-group-sm" role="group">
                     <button v-if="isEditMode" class="btn btn-primary" :disabled="processing" @click="deployStack">
                         <font-awesome-icon icon="rocket" class="me-1" />
-                        {{ $t("deployStack") }}
+                        <span v-if="!$root.isMobile">{{ $t("deployStack") }}</span>
                     </button>
 
                     <button v-if="isEditMode && !stack.isGitRepo" class="btn btn-normal" :disabled="processing" @click="saveStack">
                         <font-awesome-icon icon="save" class="me-1" />
-                        {{ $t("saveStackDraft") }}
+                        <span v-if="!$root.isMobile">{{ $t("saveStackDraft") }}</span>
                     </button>
 
                     <button v-if="!isEditMode" class="btn btn-secondary" :disabled="processing" @click="enableEditMode">
                         <font-awesome-icon icon="pen" class="me-1" />
-                        {{ $t("editStack") }}
+                        <span v-if="!$root.isMobile">{{ $t("editStack") }}</span>
                     </button>
 
                     <button v-if="!isEditMode && !active" class="btn btn-primary" :disabled="processing" @click="startStack">
                         <font-awesome-icon icon="play" class="me-1" />
-                        {{ $t("startStack") }}
+                        <span v-if="!$root.isMobile">{{ $t("startStack") }}</span>
                     </button>
 
                     <button v-if="!isEditMode && active" class="btn btn-normal " :disabled="processing" @click="restartStack">
                         <font-awesome-icon icon="rotate" class="me-1" />
-                        {{ $t("restartStack") }}
+                        <span v-if="!$root.isMobile">{{ $t("restartStack") }}</span>
                     </button>
 
                     <button v-if="!isEditMode" class="btn btn-normal" :disabled="processing" @click="updateStack">
                         <font-awesome-icon icon="cloud-arrow-down" class="me-1" />
-                        {{ $t("updateStack") }}
+                        <span v-if="!$root.isMobile">{{ $t("updateStack") }}</span>
                     </button>
 
                     <button v-if="!isEditMode && stack.isGitRepo" class="btn btn-normal" :disabled="processing" @click="gitSync">
                         <font-awesome-icon icon="rotate" class="me-1" />
-                        {{ $t("gitSync") }}
+                        <span v-if="!$root.isMobile">{{ $t("gitSync") }}</span>
                     </button>
 
                     <button v-if="!isEditMode && active" class="btn btn-normal" :disabled="processing" @click="stopStack">
                         <font-awesome-icon icon="stop" class="me-1" />
-                        {{ $t("stopStack") }}
+                        <span v-if="!$root.isMobile">{{ $t("stopStack") }}</span>
                     </button>
 
                     <BDropdown right text="" variant="normal">
@@ -62,7 +62,7 @@
                 <button v-if="isEditMode && !isAdd" class="btn btn-normal" :disabled="processing" @click="discardStack">{{ $t("discardStack") }}</button>
                 <button v-if="!isEditMode" class="btn btn-danger" :disabled="processing" @click="showDeleteDialog = !showDeleteDialog">
                     <font-awesome-icon icon="trash" class="me-1" />
-                    {{ $t("deleteStack") }}
+                    <span v-if="!$root.isMobile">{{ $t("deleteStack") }}</span>
                 </button>
             </div>
 
@@ -75,15 +75,17 @@
 
             <!-- Progress Terminal -->
             <transition name="slide-fade" appear>
-                <Terminal
-                    v-show="showProgressTerminal"
-                    ref="progressTerminal"
-                    class="mb-3 terminal"
-                    :name="terminalName"
-                    :endpoint="endpoint"
-                    :rows="progressTerminalRows"
-                    @has-data="showProgressTerminal = true; submitted = true;"
-                ></Terminal>
+                <div>
+                    <Terminal
+                        v-show="showProgressTerminal"
+                        ref="progressTerminal"
+                        class="mb-3 terminal"
+                        :name="terminalName"
+                        :endpoint="endpoint"
+                        :rows="progressTerminalRows"
+                        @has-data="showProgressTerminal = true; submitted = true;"
+                    ></Terminal>
+                </div>
             </transition>
 
             <div v-if="stack.isManagedByDockge" class="row">
@@ -226,38 +228,44 @@
                     </div>
 
                     <!-- Combined Terminal Output -->
-                    <div v-show="!isEditMode">
-                        <h4 class="mb-3">{{ $t("terminal") }}</h4>
-                        <Terminal
-                            ref="combinedTerminal"
-                            class="mb-3 terminal"
-                            :name="combinedTerminalName"
-                            :endpoint="endpoint"
-                            :rows="combinedTerminalRows"
-                            :cols="combinedTerminalCols"
-                            style="height: 315px;"
-                        ></Terminal>
-                    </div>
+                    <FullscreenContainer v-show="!isEditMode" @on-fullscreen-change="fullScreenChange">
+                        <div class="d-flex flex-column h-100">
+                            <h4 class="mb-3">{{ $t("terminal") }}</h4>
+                            <Terminal
+                                ref="combinedTerminal"
+                                class="mb-3 terminal flex-grow-1"
+                                :name="combinedTerminalName"
+                                :endpoint="endpoint"
+                                :rows="combinedTerminalRows"
+                                :cols="combinedTerminalCols"
+                                style="height: 315px;"
+                            ></Terminal>
+                        </div>
+                    </FullscreenContainer>
                 </div>
                 <div v-if="!stack.isGitRepo || (stack.isGitRepo && !isEditMode)" class="col-lg-6">
-                    <h4 class="mb-3">{{ stack.composeFileName }}</h4>
-
-                    <!-- YAML editor -->
-                    <div class="shadow-box mb-3 editor-box" :class="{'edit-mode' : isEditMode}">
-                        <prism-editor
-                            ref="editor"
-                            v-model="stack.composeYAML"
-                            class="yaml-editor"
-                            :highlight="highlighterYAML"
-                            line-numbers :readonly="!isEditMode"
-                            @input="yamlCodeChange"
-                            @focus="editorFocus = true"
-                            @blur="editorFocus = false"
-                        ></prism-editor>
-                    </div>
-                    <div v-if="isEditMode" class="mb-3">
-                        {{ yamlError }}
-                    </div>
+                    <FullscreenContainer>
+                        <div class="d-flex flex-column h-100">
+                            <h4 class="mb-3">{{ stack.composeFileName }}</h4>
+                            <!-- YAML editor -->
+                            <div class="shadow-box mb-3 editor-box flex-grow-1" :class="{'edit-mode' : isEditMode}">
+                                <prism-editor
+                                    ref="editor"
+                                    v-model="stack.composeYAML"
+                                    class="yaml-editor"
+                                    :highlight="highlighterYAML"
+                                    line-numbers :readonly="!isEditMode"
+                                    @input="yamlCodeChange"
+                                    @focus="editorFocus = true"
+                                    @blur="editorFocus = false"
+                                    style="height: 100%"
+                                ></prism-editor>
+                            </div>
+                            <div v-if="isEditMode" class="mb-3">
+                                {{ yamlError }}
+                            </div>
+                        </div>
+                    </FullscreenContainer>
 
                     <!-- ENV editor -->
                     <div v-if="isEditMode">
@@ -318,6 +326,7 @@ import { highlight, languages } from "prismjs/components/prism-core";
 import { PrismEditor } from "vue-prism-editor";
 import "prismjs/components/prism-yaml";
 import { parseDocument, Document } from "yaml";
+import FullscreenContainer from "../components/FullscreenContainer.vue";
 
 import "prismjs/themes/prism-tomorrow.css";
 import "vue-prism-editor/dist/prismeditor.min.css";
@@ -357,6 +366,7 @@ let prismjsSymbolDefinition = {
 
 export default {
     components: {
+        FullscreenContainer,
         NetworkInput,
         FontAwesomeIcon,
         PrismEditor,
@@ -973,6 +983,11 @@ export default {
                 }
             });
         },
+        fullScreenChange() {
+            if (this.$refs.combinedTerminal){
+                this.$refs.combinedTerminal.onResizeEvent();
+            }
+        }
 
     }
 };
@@ -997,4 +1012,6 @@ export default {
     font-size: 13px;
     color: $dark-font-color3;
 }
+
+
 </style>

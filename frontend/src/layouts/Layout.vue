@@ -1,35 +1,46 @@
 <template>
     <div :class="classes">
-        <div v-if="! $root.socketIO.connected && ! $root.socketIO.firstConnect" class="lost-connection">
+        <div v-if="!$root.socketIO.connected && ! $root.socketIO.firstConnect" class="lost-connection">
             <div class="container-fluid">
                 {{ $root.socketIO.connectionErrorMsg }}
                 <div v-if="$root.socketIO.showReverseProxyGuide">
-                    {{ $t("reverseProxyMsg1") }} <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">{{ $t("reverseProxyMsg2") }}</a>
+                    {{ $t("reverseProxyMsg1") }} <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy"
+                                                    target="_blank">{{ $t("reverseProxyMsg2") }}</a>
                 </div>
             </div>
         </div>
 
         <!-- Desktop header -->
-        <header v-if="! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
-            <router-link to="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-                <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title">Dockge</span>
+        <header v-if="true" class="d-flex flex-nowrap justify-content-around py-3 mb-3 border-bottom">
+            <router-link to="/"
+                         class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <object class="bi me-2" :class="{ 'ms-4': !$root.isMobile, 'ms-1': $root.isMobile }" :style="logoSize" data="/icon.svg"/>
+                <span class="title" :class="{'fs-4': !$root.isMobile, 'fs-6': $root.isMobile }">Dockge</span>
+                <button class="navbar-toggler d-block d-md-block d-xl-none" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasStackList" aria-controls="offcanvasNavbar" @click.prevent
+                        aria-label="Toggle navigation">
+                    <span class="border-1 bi bi-list fs-2"></span>
+                </button>
             </router-link>
 
-            <a v-if="hasNewVersion" target="_blank" href="https://github.com/louislam/dockge/releases" class="btn btn-warning me-3">
-                <font-awesome-icon icon="arrow-alt-circle-up" /> {{ $t("newUpdate") }}
+            <a v-if="hasNewVersion" target="_blank" href="https://github.com/louislam/dockge/releases"
+               class="btn btn-warning me-3">
+                <font-awesome-icon icon="arrow-alt-circle-up"/>
+                {{ $t("newUpdate") }}
             </a>
 
-            <ul class="nav nav-pills">
-                <li v-if="$root.loggedIn" class="nav-item me-2">
+            <ul class="nav nav-pills navbar-dark">
+                <li v-if="$root.loggedIn" class="nav-item me-2 fs-6">
                     <router-link to="/" class="nav-link">
-                        <font-awesome-icon icon="home" /> {{ $t("home") }}
+                        <font-awesome-icon icon="home"/>
+                        <span v-if="!$root.isMobile">{{ $t("home") }}</span>
                     </router-link>
                 </li>
 
                 <li v-if="$root.loggedIn" class="nav-item me-2">
                     <router-link to="/console" class="nav-link">
-                        <font-awesome-icon icon="terminal" /> {{ $t("console") }}
+                        <font-awesome-icon icon="terminal"/>
+                        <span v-if="!$root.isMobile">{{ $t("console") }}</span>
                     </router-link>
                 </li>
 
@@ -37,20 +48,24 @@
                     <div class="dropdown dropdown-profile-pic">
                         <div class="nav-link" data-bs-toggle="dropdown">
                             <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
-                            <font-awesome-icon icon="angle-down" />
+                            <font-awesome-icon icon="angle-down"/>
                         </div>
 
                         <!-- Header's Dropdown Menu -->
                         <ul class="dropdown-menu">
                             <!-- Username -->
                             <li>
-                                <i18n-t v-if="$root.username != null" tag="span" keypath="signedInDisp" class="dropdown-item-text">
+                                <i18n-t v-if="$root.username != null" tag="span" keypath="signedInDisp"
+                                        class="dropdown-item-text">
                                     <strong>{{ $root.username }}</strong>
                                 </i18n-t>
-                                <span v-if="$root.username == null" class="dropdown-item-text">{{ $t("signedInDispDisabled") }}</span>
+                                <span v-if="$root.username == null"
+                                      class="dropdown-item-text">{{ $t("signedInDispDisabled") }}</span>
                             </li>
 
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
 
                             <!-- Functions -->
 
@@ -62,25 +77,29 @@
 
                             <li>
                                 <button class="dropdown-item" @click="pruneImages">
-                                    <font-awesome-icon icon="trash" /> {{ $t("pruneImages") }}
+                                    <font-awesome-icon icon="trash"/>
+                                    {{ $t("pruneImages") }}
                                 </button>
                             </li>
 
                             <li>
                                 <button class="dropdown-item" @click="scanFolder">
-                                    <font-awesome-icon icon="arrows-rotate" /> {{ $t("scanFolder") }}
+                                    <font-awesome-icon icon="arrows-rotate"/>
+                                    {{ $t("scanFolder") }}
                                 </button>
                             </li>
 
                             <li>
-                                <router-link to="/settings/general" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
-                                    <font-awesome-icon icon="cog" /> {{ $t("Settings") }}
+                                <router-link to="/settings/general" class="dropdown-item"
+                                             :class="{ active: $route.path.includes('settings') }">
+                                    <font-awesome-icon icon="cog"/>
+                                    {{ $t("Settings") }}
                                 </router-link>
                             </li>
 
                             <li>
                                 <button class="dropdown-item" @click="$root.logout">
-                                    <font-awesome-icon icon="sign-out-alt" />
+                                    <font-awesome-icon icon="sign-out-alt"/>
                                     {{ $t("Logout") }}
                                 </button>
                             </li>
@@ -95,8 +114,8 @@
                 <h4>{{ $t("connecting...") }}</h4>
             </div>
 
-            <router-view v-if="$root.loggedIn" />
-            <Login v-if="! $root.loggedIn && $root.allowLoginDialog" />
+            <router-view v-if="$root.loggedIn"/>
+            <Login v-if="! $root.loggedIn && $root.allowLoginDialog"/>
         </main>
     </div>
 </template>
@@ -113,9 +132,7 @@ export default {
     },
 
     data() {
-        return {
-
-        };
+        return {};
     },
 
     computed: {
@@ -136,14 +153,25 @@ export default {
             }
         },
 
+        logoSize() {
+            if (this.$root.isMobile){
+                return {
+                    width: "30px",
+                    height:"30px"
+                };
+            }else {
+                return {
+                    width: "40px",
+                    height:"40px"
+                };
+            }
+        },
+
     },
 
-    watch: {
-
-    },
+    watch: {},
 
     mounted() {
-
     },
 
     beforeUnmount() {

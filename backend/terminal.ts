@@ -43,6 +43,8 @@ export class Terminal {
         this.file = file;
         this.args = args;
         this.cwd = cwd;
+        console.log("Terminal", "Creating terminal: " + this.name);
+        console.log("this.cwd", this.cwd);
 
         Terminal.terminalMap.set(this.name, this);
     }
@@ -112,6 +114,10 @@ export class Terminal {
         }
 
         try {
+            console.log("this.file", this.file);
+            console.log("this.args", this.args);
+            console.log("this.name", this.name);
+            console.log("this.cwd", this.cwd);
             this._ptyProcess = pty.spawn(this.file, this.args, {
                 name: this.name,
                 cwd: this.cwd,

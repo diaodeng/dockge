@@ -417,3 +417,40 @@ function traverseYAML(pair : Pair, env : DotenvParseOutput) : void {
     }
 }
 
+/**
+ * Get the device type
+ * @returns "mobile" | "tablet" | "desktop"
+ * Extra small	None	<576px
+ * Small	sm	≥576px
+ * Medium	md	≥768px
+ * Large	lg	≥992px
+ * Extra large	xl	≥1200px
+ * Extra extra large	xxl	≥1400px
+ */
+export const getDeviceType = () => {
+    const userAgent = navigator.userAgent;
+    const width = window.innerWidth;
+
+    // 平板检测 (优先检测平板)
+    const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/i.test(userAgent)
+    || (width >= 768 && width <= 1200);
+
+    // 手机检测
+    // const isMobile = /Mobile|iP(hone|od|ad)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(userAgent)
+    // || width < 768;
+    const isMobile = width < 768;
+
+    return isTablet ? "tablet" : isMobile ? "mobile" : "desktop";
+};
+
+export const isMobile = () => {
+    return getDeviceType() === "mobile";
+};
+
+export const isTablet = () => {
+    return getDeviceType() === "tablet";
+};
+
+export const isDesktop = () => {
+    return getDeviceType() === "desktop";
+};

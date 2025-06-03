@@ -4,20 +4,20 @@
             <div class="header-top">
                 <!-- TODO -->
                 <button v-if="false" class="btn btn-outline-normal ms-2" :class="{ 'active': selectMode }" type="button"
-                    @click="selectMode = !selectMode">
+                        @click="selectMode = !selectMode">
                     {{ $t("Select") }}
                 </button>
 
                 <div class="placeholder"></div>
-                <div class="search-wrapper">
+                <div class="search-wrapper" style="flex-grow: 1">
                     <a v-if="searchText == ''" class="search-icon">
-                        <font-awesome-icon icon="search" />
+                        <font-awesome-icon icon="search"/>
                     </a>
                     <a v-if="searchText != ''" class="search-icon" style="cursor: pointer" @click="clearSearchText">
-                        <font-awesome-icon icon="times" />
+                        <font-awesome-icon icon="times"/>
                     </a>
-                    <form>
-                        <input v-model="searchText" class="form-control search-input" autocomplete="off" />
+                    <form style="flex-grow: 1">
+                        <input v-model="searchText" class="form-control search-input" autocomplete="off"/>
                     </form>
                 </div>
             </div>
@@ -29,12 +29,18 @@
 
             <!-- TODO: Selection Controls -->
             <div v-if="selectMode && false" class="selection-controls px-2 pt-2">
-                <input v-model="selectAll" class="form-check-input select-input" type="checkbox" />
+                <input v-model="selectAll" class="form-check-input select-input" type="checkbox"/>
 
-                <button class="btn-outline-normal" @click="pauseDialog"><font-awesome-icon icon="pause" size="sm" /> {{
-                    $t("Pause") }}</button>
-                <button class="btn-outline-normal" @click="resumeSelected"><font-awesome-icon icon="play" size="sm" />
-                    {{ $t("Resume") }}</button>
+                <button class="btn-outline-normal" @click="pauseDialog">
+                    <font-awesome-icon icon="pause" size="sm"/>
+                    {{
+                        $t("Pause")
+                    }}
+                </button>
+                <button class="btn-outline-normal" @click="resumeSelected">
+                    <font-awesome-icon icon="play" size="sm"/>
+                    {{ $t("Resume") }}
+                </button>
 
                 <span v-if="selectedStackCount > 0">
                     {{ $t("selectedStackCount", [selectedStackCount]) }}
@@ -47,17 +53,18 @@
             </div>
             <div class="stack-list-inner" v-for="(agent, index) in agentStackList" :key="index">
                 <div v-if="$root.agentCount > 1" class="p-2 agent-select"
-                    @click="closedAgents.set(agent.endpoint, !closedAgents.get(agent.endpoint))">
+                     @click="closedAgents.set(agent.endpoint, !closedAgents.get(agent.endpoint))">
                     <span class="me-1">
-                        <font-awesome-icon v-show="closedAgents.get(agent.endpoint)" icon="chevron-circle-right" />
-                        <font-awesome-icon v-show="!closedAgents.get(agent.endpoint)" icon="chevron-circle-down" />
+                        <font-awesome-icon v-show="closedAgents.get(agent.endpoint)" icon="chevron-circle-right"/>
+                        <font-awesome-icon v-show="!closedAgents.get(agent.endpoint)" icon="chevron-circle-down"/>
                     </span>
                     <span v-if="agent.endpoint === 'current'">{{ $t("currentEndpoint") }}</span>
                     <span v-else>{{ agent.endpoint }}</span>
                 </div>
                 <StackListItem v-show="$root.agentCount === 1 || !closedAgents.get(agent.endpoint)"
-                    v-for="(item, index) in agent.stacks" :key="index" :stack="item" :isSelectMode="selectMode"
-                    :isSelected="isSelected" :select="select" :deselect="deselect" />
+                               v-for="(item, index) in agent.stacks" :key="index" :stack="item"
+                               :isSelectMode="selectMode"
+                               :isSelected="isSelected" :select="select" :deselect="deselect"/>
             </div>
         </div>
     </div>
@@ -195,7 +202,7 @@ export default {
             // and the rest are sorted alphabetically
             result = [
                 ...result.reduce((acc, stack) => {
-                    const endpoint = stack.endpoint || 'current';
+                    const endpoint = stack.endpoint || "current";
                     if (!acc.has(endpoint)) {
                         acc.set(endpoint, []);
                     }
@@ -206,9 +213,9 @@ export default {
                 endpoint,
                 stacks
             })).sort((a, b) => {
-                if (a.endpoint === 'current' && b.endpoint !== 'current') {
+                if (a.endpoint === "current" && b.endpoint !== "current") {
                     return -1;
-                } else if (a.endpoint !== 'current' && b.endpoint === 'current') {
+                } else if (a.endpoint !== "current" && b.endpoint === "current") {
                     return 1;
                 }
                 return a.endpoint.localeCompare(b.endpoint);
@@ -358,7 +365,8 @@ export default {
         pauseSelected() {
             Object.keys(this.selectedStacks)
                 .filter(id => this.$root.stackList[id].active)
-                .forEach(id => this.$root.getSocket().emit("pauseStack", id, () => { }));
+                .forEach(id => this.$root.getSocket().emit("pauseStack", id, () => {
+                }));
 
             this.cancelSelectMode();
         },
@@ -369,7 +377,8 @@ export default {
         resumeSelected() {
             Object.keys(this.selectedStacks)
                 .filter(id => !this.$root.stackList[id].active)
-                .forEach(id => this.$root.getSocket().emit("resumeStack", id, () => { }));
+                .forEach(id => this.$root.getSocket().emit("resumeStack", id, () => {
+                }));
 
             this.cancelSelectMode();
         },

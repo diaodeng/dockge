@@ -1,5 +1,7 @@
-FROM node:22-bookworm-slim
-RUN apt update && apt install --yes --no-install-recommends \
+FROM docker.xuanyuan.me/library/node:22-bookworm-slim
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+    && sed -i 's|security.debian.org/debian-security|mirrors.ustc.edu.cn/debian-security|g' /etc/apt/sources.list \
+    && apt update && apt install --yes --no-install-recommends \
     curl \
     ca-certificates \
     gnupg \

@@ -17,6 +17,7 @@ import "@fontsource/jetbrains-mono";
 import "vue-toastification/dist/index.css";
 import "@xterm/xterm/css/xterm.css";
 import "./styles/main.scss";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 // Minxins
 import socket from "./mixins/socket";
@@ -57,7 +58,6 @@ function rootApp() {
             };
         },
         computed: {
-
         },
         methods: {
 

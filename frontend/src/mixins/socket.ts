@@ -4,6 +4,7 @@ import { defineComponent } from "vue";
 import jwtDecode from "jwt-decode";
 import { Terminal } from "@xterm/xterm";
 import { AgentSocket } from "../../../common/agent-socket";
+import { isMobile as deviceIsMobile, isDesktop as deviceIsDesktop} from "../../../common/util-common";
 
 let socket : Socket;
 
@@ -27,6 +28,8 @@ export default defineComponent({
             },
             remember: (localStorage.remember !== "0"),
             loggedIn: false,
+            isMobile: false,
+            isDeskTop: false,
             allowLoginDialog: false,
             username: null,
             composeTemplate: "",
@@ -125,6 +128,12 @@ export default defineComponent({
         this.initSocketIO();
     },
     mounted() {
+        this.isMobile = deviceIsMobile();
+        this.isDeskTop = deviceIsDesktop();
+        onresize = () => {
+            this.isDeskTop = deviceIsDesktop();
+            this.isMobile = deviceIsMobile();
+        };
         return;
 
     },
@@ -411,5 +420,8 @@ export default defineComponent({
             terminalMap.delete(terminalName);
         },
 
+    },
+    unmounted() {
+        onresize = null;
     }
 });
