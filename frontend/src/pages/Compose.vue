@@ -1003,9 +1003,6 @@ export default {
 .editor-box {
     font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
-    &.edit-mode {
-        background-color: #2c2f38 !important;
-    }
 }
 
 .agent-name {
