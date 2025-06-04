@@ -43,7 +43,7 @@ export class Terminal {
         this.file = file;
         this.args = args;
         this.cwd = cwd;
-        log.debug("Terminal: " + this.name);
+        log.debug("this.name", this.name);
         log.debug("this.file", this.file);
         log.debug("this.args", this.args);
         log.debug("this.cwd", this.cwd);

@@ -36,7 +36,7 @@ export class Stack {
 
     protected combinedTerminal? : Terminal;
 
-    protected static managedStackList: Map<string, Stack> = new Map();
+    protected static managedStackList: Map<string, Map<string, Stack>> = new Map();
 
     constructor(server : DockgeServer, name : string, composeYAML? : string, composeENV? : string, skipFSOperations = false) {
         this.name = name;
@@ -305,10 +305,11 @@ export class Stack {
 
     static async getStackList(server : DockgeServer, useCacheForManaged = false) : Promise<Map<string, Stack>> {
         let stackList : Map<string, Stack> = new Map<string, Stack>();
-
+        let stackKey : string = server.config.hostname || "" + server.config.port || "";
+        log.info("stackKey: ", stackKey);
         // Use cached stack list?
-        if (useCacheForManaged && this.managedStackList.size > 0) {
-            stackList = this.managedStackList;
+        if (useCacheForManaged && this.managedStackList.get(stackKey) !== undefined && this.managedStackList.get(stackKey)!.size > 0) {
+            stackList = this.managedStackList.get(stackKey)! ;
             return stackList;
         }
 
@@ -337,6 +338,8 @@ export class Stack {
                     // skip dockge if not managed by dockge
                     continue;
                 }
+                // log.info("composeStack.Name： ", composeStack.Name);
+                // log.info("getStackList.stack： ", stack);
                 stackList.set(composeStack.Name, stack);
 
                 // add project path to search tree so we can quickly decide if we have seen it before later
@@ -403,7 +406,7 @@ export class Stack {
             }
         }
 
-        this.managedStackList = stackList;
+        this.managedStackList.set(stackKey, stackList);
         return stackList;
     }
 
@@ -452,16 +455,23 @@ export class Stack {
 
     static async getStack(server: DockgeServer, stackName: string, skipFSOperations = false) : Promise<Stack> {
         let stack: Stack | undefined;
+        const stackKey = server.config.hostname || "" + server.config.port || "";
+        log.info("GETSTACKSTACKNAME:", stackName);
         if (!skipFSOperations) {
             let stackList = await this.getStackList(server, true);
+            log.info("GETSTACKSTACKLIST:", stackList);
             stack = stackList.get(stackName);
+            log.info("stack.path:", stack ? stack.path : "undefined");
             if (!stack || !await fileExists(stack.path) || !(await fsAsync.stat(stack.path)).isDirectory() ) {
-                throw new ValidationError(`getStack; Stack ${stackName} not found`);
+                throw new ValidationError(`getStack; Stack ${stackName} not found in ${stack ? stack._configFilePath : "unknown path"}`);
             }
         } else {
             // search for known stack with this name
-            if (this.managedStackList) {
-                stack = this.managedStackList.get(stackName);
+            if (this.managedStackList && this.managedStackList.get(stackKey)) {
+                const agentStacks = this.managedStackList.get(stackKey);
+                if (agentStacks) {
+                    stack = agentStacks.get(stackName);
+                }
             }
             if (!this.managedStackList || !stack) {
                 stack = new Stack(server, stackName, undefined, undefined, true);
@@ -614,6 +624,8 @@ export class Stack {
         let statusList = new Map<string, Array<object>>();
 
         try {
+            log.info("DEBUGTHISPATH:", this.path);
+            log.info("this.server.config.hostname:", this.server.config.hostname);
             let res = await childProcessAsync.spawn("docker", [ "compose", "ps", "--format", "json" ], {
                 cwd: this.path,
                 encoding: "utf-8",

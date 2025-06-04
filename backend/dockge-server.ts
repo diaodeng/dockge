@@ -661,7 +661,7 @@ export class DockgeServer {
                     if (stack.isGitRepo) {
                         stack.checkRemoteChanges().then(async (outdated) => {
                             if (outdated) {
-                                log.info("git-updater", `Stack  ${stackName} is outdated, Updating...`);
+                                log.info("git-updater", `Stack  ${this.config.hostname}:${this.config.port} ${stackName} is outdated, Updating...`);
                                 await stack.update(dockgeSocket);
                             }
                         });
