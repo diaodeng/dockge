@@ -59,7 +59,7 @@
                         <font-awesome-icon v-show="!closedAgents.get(agent.endpoint)" icon="chevron-circle-down"/>
                     </span>
                     <span v-if="agent.endpoint === 'current'">{{ $t("currentEndpoint") }}</span>
-                    <span v-else>{{ agent.endpoint }}</span>
+                    <span v-else>{{ ($root.agentList[agent.endpoint]["name"] === "" || $root.agentList[agent.endpoint]["name"] === null) ? agent.endpoint : $root.agentList[agent.endpoint]["name"] }}</span>
                 </div>
                 <StackListItem v-show="$root.agentCount === 1 || !closedAgents.get(agent.endpoint)"
                                v-for="(item, index) in agent.stacks" :key="index" :stack="item"

@@ -298,7 +298,6 @@ export class AgentManager {
             username: "",
             endpoint: "",
             name: "",
-            updatedName: "",
         };
 
         for (let endpoint in list) {

@@ -4,7 +4,7 @@ import { defineComponent } from "vue";
 import jwtDecode from "jwt-decode";
 import { Terminal } from "@xterm/xterm";
 import { AgentSocket } from "../../../common/agent-socket";
-import { isMobile as deviceIsMobile, isDesktop as deviceIsDesktop} from "../../../common/util-common";
+import { isMobile as deviceIsMobile, isDesktop as deviceIsDesktop } from "../../../common/util-common";
 
 let socket : Socket;
 
@@ -140,15 +140,12 @@ export default defineComponent({
     methods: {
 
         endpointDisplayFunction(endpoint : string) {
-            for (const [k, v] of Object.entries(this.$data.agentList)) {
-                if (endpoint) {
-                    if (endpoint === v["endpoint"] && v["name"] !== "") {
-                        return v["name"];
-                    }
-                    if (endpoint === v["endpoint"] && v["name"] === "" ) {
-                        return endpoint;
-                    }
-                }
+            if (endpoint) {
+                const agent = this.$data.agentList[endpoint];
+                const agentName = agent["name"];
+                return (agentName !== "" && agentName !== null && agentName !== undefined) ? agentName : endpoint;
+            } else {
+                return this.$t("currentEndpoint");
             }
         },
 

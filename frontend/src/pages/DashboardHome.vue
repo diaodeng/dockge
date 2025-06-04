@@ -49,26 +49,35 @@
                             </template>
 
                             <!-- Agent Display Name -->
-                            <template v-if="$root.agentStatusList[endpoint]">
-                                <span v-if="endpoint === '' && agent.name === ''" class="badge bg-secondary me-2">Controller</span>
-                                <span v-else-if="agent.name === ''" :href="agent.url" class="me-2">{{ endpoint }}</span>
-                                <span v-else :href="agent.url" class="me-2">{{ agent.name }}</span>
-                            </template>
+                            <span v-if="endpoint === ''" class="badge bg-secondary me-2">{{ $t("currentEndpoint") }}</span>
+                            <span v-else-if="agent.name === '' || agent.name === null" :href="agent.url" class="me-2">{{ endpoint }}</span>
+                            <span v-else :href="agent.url" class="me-2">{{ agent.name }}</span>
+
 
                             <!-- Edit Name  -->
-                            <font-awesome-icon icon="pen-to-square" @click="showEditAgentNameDialog[agent.name] = !showEditAgentNameDialog[agent.Name]" />
+                            <font-awesome-icon icon="pen-to-square" @click="showEditAgentNameDialog[agent.url] = !showEditAgentNameDialog[agent.url]" />
 
                             <!-- Edit Dialog -->
-                            <BModal v-model="showEditAgentNameDialog[agent.name]" :no-close-on-backdrop="true" :close-on-esc="true" :okTitle="$t('Update Name')" okVariant="info" @ok="updateName(agent.url, agent.updatedName)">
-                                <label for="Update Name" class="form-label">Current value: {{ $t(agent.name) }}</label>
-                                <input id="updatedName" v-model="agent.updatedName" type="text" class="form-control" optional>
+                            <BModal v-model="showEditAgentNameDialog[agent.url]"
+                                    :no-close-on-backdrop="true"
+                                    :close-on-esc="true"
+                                    :okTitle="$t('updateAgent')"
+                                    :title="agent.url + '(' + agent.name + ')'"
+                                    okVariant="info"
+                                    @ok="updateName(agent.url, agent.name)">
+                                <label for="updatedName" class="form-label">{{ $t("agentNameLabel") }}</label>
+                                <input id="updatedName" v-model="agent.name" type="text" class="form-control" optional>
                             </BModal>
 
                             <!-- Remove Button -->
                             <font-awesome-icon v-if="endpoint !== ''" class="ms-2 remove-agent" icon="trash" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
 
                             <!-- Remove Agent Dialog -->
-                            <BModal v-model="showRemoveAgentDialog[agent.url]" :okTitle="$t('removeAgent')" okVariant="danger" @ok="removeAgent(agent.url)">
+                            <BModal v-model="showRemoveAgentDialog[agent.url]"
+                                    :okTitle="$t('removeAgent')"
+                                    okVariant="danger"
+                                    :title="agent.url + '(' + agent.name + ')'"
+                                    @ok="removeAgent(agent.url)">
                                 <p>{{ agent.url }}</p>
                                 {{ $t("removeAgentMsg") }}
                             </BModal>
@@ -94,8 +103,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="name" class="form-label">{{ $t("Friendly Name") }}</label>
-                                <input id="name" v-model="agent.name" type="text" class="form-control" optional>
+                                <label for="agentname" class="form-label">{{ $t("agentNameLabel") }}</label>
+                                <input id="agentname" v-model="agent.name" type="text" class="form-control" optional>
                             </div>
 
                             <button type="submit" class="btn btn-primary" :disabled="connectingAgent">
@@ -145,7 +154,6 @@ export default {
                 username: "",
                 password: "",
                 name: "",
-                updatedName: "",
             }
         };
     },
@@ -225,9 +233,6 @@ export default {
 
                 if (res.ok) {
                     this.showAgentForm = false;
-                    this.agent = {
-                        updatedName: "",
-                    };
                 }
             });
         },
