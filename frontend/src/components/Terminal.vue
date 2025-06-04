@@ -129,10 +129,20 @@ export default {
         }
         // Fit the terminal width to the div container size after terminal is created.
         this.updateTerminalSize();
+
+        // Add paste event listener
+        this.terminal.textarea.addEventListener("paste", (event) => {
+            const textToPaste = event.clipboardData.getData("text").replace(/\n+$/, "");
+            this.cursorPosition += textToPaste.length;
+            this.terminalInputBuffer += textToPaste;
+            console.debug("Paste text: " + textToPaste);
+            this.terminal.write(textToPaste);
+        });
     },
 
     unmounted() {
         window.removeEventListener("resize", this.onResizeEvent); // Remove the resize event listener from the window object.
+        window.removeEventListener("paste", this.onResizeEvent); // Remove the paste event listener from the window object.
         this.$root.unbindTerminal(this.name);
         this.terminal.dispose();
     },
