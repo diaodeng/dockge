@@ -2,6 +2,9 @@
 .env
 node_modules
 .idea
+.github
+.vscode
+.git
 data
 stacks
 tmp
@@ -10,3 +13,4 @@ tmp
 # Git only
 frontend-dist
 
+/.github/
