@@ -51,19 +51,23 @@
                         <span v-if="!$root.isMobile">{{ $t("stopStack") }}</span>
                     </button>
 
-                    <BDropdown right text="" variant="normal">
+                    <BDropdown right text="" variant="normal" class="stackDropDownMenu" :class="{ 'dark': $root.userTheme==='dark' }">
                         <BDropdownItem @click="downStack">
-                            <font-awesome-icon icon="stop" class="me-1" />
-                            {{ $t("downStack") }}
+                            <button class="btn btn-warning btn-sm">
+                                <font-awesome-icon icon="stop" class="me-1" />
+                                {{ $t("downStack") }}
+                            </button>
+                        </BDropdownItem>
+                        <BDropdownItem v-if="!isEditMode" @click="showDeleteDialog = !showDeleteDialog" :disabled="processing">
+                            <button class="btn btn-danger btn-sm">
+                                <font-awesome-icon icon="trash" class="me-1" />
+                                {{ $t("deleteStack") }}
+                            </button>
                         </BDropdownItem>
                     </BDropdown>
                 </div>
 
                 <button v-if="isEditMode && !isAdd" class="btn btn-normal" :disabled="processing" @click="discardStack">{{ $t("discardStack") }}</button>
-                <button v-if="!isEditMode" class="btn btn-danger" :disabled="processing" @click="showDeleteDialog = !showDeleteDialog">
-                    <font-awesome-icon icon="trash" class="me-1" />
-                    <span v-if="!$root.isMobile">{{ $t("deleteStack") }}</span>
-                </button>
             </div>
 
             <!-- URLs -->
@@ -1008,6 +1012,13 @@ export default {
 .agent-name {
     font-size: 13px;
     color: $dark-font-color3;
+}
+
+.dark .stackDropDownMenu {
+    background-color: $dark-bg;
+    .dropdown-menu {
+       background-color: $dark-bg;
+   }
 }
 
 

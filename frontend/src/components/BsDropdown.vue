@@ -3,16 +3,18 @@
     <div class="dropdown" ref="dropdownRoot">
         <button
             type="button"
-            class="btn btn-sm btn-normal dropdown-toggle btn-sm"
+            class="btn btn-sm btn-normal btn-sm"
             data-bs-toggle="dropdown"
             :data-bs-auto-close="autoClose"
             aria-expanded="false"
         >
-            <slot name="button-content"></slot>
+            <slot name="button-content">
+                <i class="bi bi-caret-down-fill" />
+            </slot>
         </button>
 
         <!-- 可嵌套 form、组件等 -->
-        <div class="dropdown-menu p-4 bg-dark">
+        <div class="dropdown-menu p-4">
             <slot />
         </div>
     </div>
@@ -39,3 +41,9 @@ onMounted(() => {
     });
 });
 </script>
+
+<style lang="scss" scoped>
+.dark .dropdown-menu  {
+    background-color: #222;
+}
+</style>

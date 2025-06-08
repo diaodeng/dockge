@@ -6,7 +6,16 @@
 
         <div class="shadow-box shadow-box-settings">
             <div class="row">
-                <div v-if="showSubMenu" class="settings-menu col-lg-3 col-md-5">
+                <div class="settings-menu col-9 col-lg-3 col-md-5"
+                     :class="{'offcanvas': $root.isMobile, 'offcanvas-start': $root.isMobile}"
+                     aria-labelledby="offcanvasNavbarLabel"
+                     tabindex="-1"
+                     id="settinsOffcanvasNavbar"
+                >
+                    <div class="offcanvas-header d-md-none d-flex flex-nowrap">
+                        <h5 class="offcanvas-title">{{ $t("Settings") }}</h5>
+                        <button type="button" class="btn-close" style="color: white" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasNavbarLabel" aria-label="Close"></button>
+                    </div>
                     <router-link
                         v-for="(item, key) in subMenus"
                         :key="key"
@@ -18,7 +27,7 @@
                     </router-link>
 
                     <!-- Logout Button -->
-                    <a v-if="$root.isMobile && $root.loggedIn && $root.socket.token !== 'autoLogin'" class="logout" @click.prevent="$root.logout">
+                    <a v-if="$root.isMobile && $root.loggedIn && $root.socket && $root.socket.token !== 'autoLogin'" class="logout" @click.prevent="$root.logout">
                         <div class="menu-item">
                             <font-awesome-icon icon="sign-out-alt" />
                             {{ $t("Logout") }}
@@ -26,8 +35,15 @@
                     </a>
                 </div>
                 <div class="settings-content col-lg-9 col-md-7">
-                    <div v-if="currentPage" class="settings-content-header">
-                        {{ subMenus[currentPage].title }}
+                    <div class="d-flex">
+                        <div v-if="currentPage" class="settings-content-header">
+                            {{ subMenus[currentPage].title }}
+                        </div>
+                        <button class="navbar-toggler d-block d-md-none" type="button" data-bs-toggle="offcanvas"
+                                data-bs-target="#settinsOffcanvasNavbar" aria-controls="offcanvasNavbar" @click.prevent
+                                aria-label="Toggle navigation">
+                            <span class="border-1 bi bi-list fs-2"></span>
+                        </button>
                     </div>
                     <div class="mx-3">
                         <router-view v-slot="{ Component }">
@@ -93,11 +109,7 @@ export default {
         },
     },
 
-    watch: {
-        "$root.isMobile"() {
-            this.loadGeneralPage();
-        }
-    },
+    watch: {},
 
     mounted() {
         this.loadSettings();
@@ -251,5 +263,13 @@ footer {
 
 .logout {
     color: $danger !important;
+}
+
+.dark .offcanvas {
+    background-color: $dark-bg;
+}
+
+.dark .offcanvas-title {
+    color: $dark-font-color;
 }
 </style>
