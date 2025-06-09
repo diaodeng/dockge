@@ -195,7 +195,7 @@ export class Stack {
     }
 
     get path() : string {
-        return this._configFilePath || "";
+        return this._configFilePath || path.join(this.server.stacksDir, this.name);
     }
 
     get fullPath() : string {
