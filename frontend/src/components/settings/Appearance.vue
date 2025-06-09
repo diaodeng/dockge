@@ -15,7 +15,7 @@
             </select>
         </div>
         <div v-show="true" class="my-4">
-            <label for="timezone" class="form-label">{{ $t("Theme") }}</label>
+            <label for="timezone" class="form-label">{{ $t("theme") }}</label>
             <div>
                 <div
                     class="btn-group"
@@ -32,7 +32,7 @@
                         value="light"
                     />
                     <label class="btn btn-outline-primary" for="btncheck1">
-                        {{ $t("Light") }}
+                        {{ $t("light") }}
                     </label>
 
                     <input
@@ -45,7 +45,7 @@
                         value="dark"
                     />
                     <label class="btn btn-outline-primary" for="btncheck2">
-                        {{ $t("Dark") }}
+                        {{ $t("dark") }}
                     </label>
 
                     <input
@@ -58,7 +58,7 @@
                         value="auto"
                     />
                     <label class="btn btn-outline-primary" for="btncheck3">
-                        {{ $t("Auto") }}
+                        {{ $t("auto") }}
                     </label>
                 </div>
             </div>

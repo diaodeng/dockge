@@ -4,53 +4,58 @@
             <div class="col-12">
                 <div class="d-flex flex-nowrap">
                     <h4>{{ name }}</h4>
-                    <div class="btn-group-sm flex-grow-1 d-flex justify-content-end" role="group">
-                        <router-link
-                            v-if="!isEditMode" :to="terminalRouteLink"
-                            type="button" class="btn btn-normal me-2" disabled=""
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Bash"
-                        >
-                            <font-awesome-icon icon="terminal" />
-                            <span v-if="!$root.isMobile" class="ms-2">{{ $t("bash") }}</span>
-                        </router-link>
-                        <button
-                            v-if="status !== 'running' && status !== 'healthy'"
-                            class="btn btn-primary me-2 small"
-                            type="button"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Start"
-                            :disabled="processing"
-                            @click="startService"
-                        >
-                            <font-awesome-icon icon="play" class="p-0 m-0" />
-                            <span v-if="!$root.isMobile" class="ms-2">{{ $t("startStack") }}</span>
-                        </button>
-                        <button
-                            v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
-                            class="btn btn-danger small me-2 circle"
-                            type="button"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Stop"
-                            :disabled="processing"
-                            @click="stopService"
-                        >
-                            <font-awesome-icon icon="stop" class="" />
-                            <span v-if="!$root.isMobile" class="ms-2">{{ $t("stopStack") }}</span>
-                        </button>
-                        <button
-                            v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
-                            class="btn btn-warning me-2 small"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Restart"
-                            type="button"
-                            :disabled="processing"
-                            @click="restartService"
-                        >
-                            <font-awesome-icon icon="sync" class="" />
-                            <span v-if="!$root.isMobile" class="ms-2">{{ $t("restartStack") }}</span>
-                        </button>
+                    <div class="flex-grow-1 d-flex justify-content-end">
+                        <BsDropdown class="">
+                            <div class="btn-group-sm d-flex flex-column gap-2" role="group">
+                                <router-link
+                                    v-if="!isEditMode" :to="terminalRouteLink"
+                                    type="button" class="btn btn-normal me-2" disabled=""
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Bash"
+                                >
+                                    <font-awesome-icon icon="terminal" />
+                                    <span class="ms-2">{{ $t("bash") }}</span>
+                                </router-link>
+                                <button
+                                    v-if="status !== 'running' && status !== 'healthy'"
+                                    class="btn btn-primary me-2 small"
+                                    type="button"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Start"
+                                    :disabled="processing"
+                                    @click="startService"
+                                >
+                                    <font-awesome-icon icon="play" class="p-0 m-0" />
+                                    <span class="ms-2">{{ $t("startStack") }}</span>
+                                </button>
+                                <button
+                                    v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
+                                    class="btn btn-danger small me-2 circle"
+                                    type="button"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Stop"
+                                    :disabled="processing"
+                                    @click="stopService"
+                                >
+                                    <font-awesome-icon icon="stop" class="" />
+                                    <span class="ms-2">{{ $t("stopStack") }}</span>
+                                </button>
+                                <button
+                                    v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
+                                    class="btn btn-warning me-2 small"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Restart"
+                                    type="button"
+                                    :disabled="processing"
+                                    @click="restartService"
+                                >
+                                    <font-awesome-icon icon="sync" class="" />
+                                    <span class="ms-2">{{ $t("restartStack") }}</span>
+                                </button>
+                            </div>
+                        </BsDropdown>
                     </div>
+
                 </div>
                 <div class="image mb-2">
                     <span class="me-1">{{ imageName }}:</span><span class="tag">{{ imageTag }}</span>
@@ -70,12 +75,15 @@
                                 <span v-else style="font-size: small">{{ $t('CPU') }}: {{ statsInstances[0].CPUPerc }}</span>
                             </div>
                             <BsDropdown>
+                                <template #button-content>
+                                    <i class="bi bi-three-dots"></i>
+                                </template>
                                 <form>
                                     <DockerStat
                                         v-for="stat in statsInstances"
                                         :key="stat.Name"
                                         :stat="stat"
-                                        style="width: 250px"
+                                        style="width: 300px"
                                     />
                                 </form>
                             </BsDropdown>

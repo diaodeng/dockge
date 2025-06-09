@@ -55,7 +55,9 @@
 
 
                             <!-- Edit Name  -->
-                            <font-awesome-icon icon="pen-to-square" @click="showEditAgentNameDialog[agent.url] = !showEditAgentNameDialog[agent.url]" />
+                            <button type="button" class="btn btn-sm btn-secondary pe-2 ps-2" >
+                                <font-awesome-icon icon="pen-to-square" @click="showEditAgentNameDialog[agent.url] = !showEditAgentNameDialog[agent.url]" />
+                            </button>
 
                             <!-- Edit Dialog -->
                             <BModal v-model="showEditAgentNameDialog[agent.url]"
@@ -70,7 +72,9 @@
                             </BModal>
 
                             <!-- Remove Button -->
-                            <font-awesome-icon v-if="endpoint !== ''" class="ms-2 remove-agent" icon="trash" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
+                            <button v-if="endpoint !== ''" type="submit" class="btn btn-danger btn-sm rounded ms-2 ps-2 pe-2">
+                                <font-awesome-icon icon="trash" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
+                            </button>
 
                             <!-- Remove Agent Dialog -->
                             <BModal v-model="showRemoveAgentDialog[agent.url]"
@@ -375,7 +379,7 @@ table {
 
 .remove-agent {
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.3);
+    //color: rgba(255, 255, 255, 0.3);
 }
 
 .agent {

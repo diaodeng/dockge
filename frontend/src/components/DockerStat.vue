@@ -1,7 +1,9 @@
 <template>
     <div class="stats-container">
         <div class="stats-title">
-            {{ stat.Name }}
+            <h4>
+                {{ stat.Name }}
+            </h4>
         </div>
         <div class="d-flex justify-content-between stats gap-2 mt-1">
             <div class="stat">
@@ -52,6 +54,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../styles/vars.scss";
+
 .stats-container {
     container-type: inline-size;
 
@@ -90,5 +94,8 @@ export default {
 .stats-title {
     font-size: 0.9rem;
     color: var(--bs-heading-color);
+    .dark & {
+        color: $dark-font-color;
+    }
 }
 </style>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useTemplateRef, ref } from "vue";
-import {isDesktop, isMobile} from "../../../common/util-common";
 
 const containerRef = useTemplateRef("fullscreenContainer");
 
@@ -42,6 +41,8 @@ function toggleFullscreen() {
 </template>
 
 <style scoped lang="scss">
+@import "../styles/vars.scss";
+
 .fullscreen-btn {
     background: rgba(255,255,255,0.2);
     border: none;
@@ -54,6 +55,11 @@ function toggleFullscreen() {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s;
+}
+
+.light .fullscreen-btn {
+  background-color: gray;
+  color: #fff;
 }
 
 .fullscreen-btn:hover {

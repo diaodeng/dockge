@@ -128,8 +128,8 @@ export default defineComponent({
         this.initSocketIO();
     },
     mounted() {
-        this.isMobile = deviceIsMobile();
         this.isDeskTop = deviceIsDesktop();
+        this.isMobile = deviceIsMobile();
         onresize = () => {
             this.isDeskTop = deviceIsDesktop();
             this.isMobile = deviceIsMobile();

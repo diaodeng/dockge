@@ -7,6 +7,7 @@ import { R } from "redbean-node";
 import { verifyPassword } from "./password-hash";
 import fs from "fs";
 import { AgentManager } from "./agent-manager";
+import path from "path";
 
 export interface JWTDecoded {
     username : string;
@@ -103,4 +104,20 @@ export function fileExists(file : string) {
     return fs.promises.access(file, fs.constants.F_OK)
         .then(() => true)
         .catch(() => false);
+}
+
+export function readDirWithDepth(dir: string, depth: number): fs.Dirent[] {
+    let results: fs.Dirent[] = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        results.push(entry);
+
+        if (entry.isDirectory() && depth > 0) {
+            results = results.concat(readDirWithDepth(fullPath, depth - 1));
+        }
+    }
+
+    return results;
 }
