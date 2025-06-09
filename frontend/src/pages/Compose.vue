@@ -4,9 +4,13 @@
             <h1 v-if="isAdd" class="mb-3">{{ $t("compose") }}</h1>
             <h1 v-else class="mb-3">
                 <Uptime :stack="globalStack" :pill="true" /> {{ stack.name }}
-                <span v-if="$root.agentCount > 1" class="agent-name">
-                    ({{ endpointDisplay }})
+                <span class="d-flex flex-column">
+                    <span v-if="$root.agentCount > 1" class="agent-name">
+                        ({{ endpointDisplay }})
+                    </span>
+                    <span v-if="stack.composeFilePath" class="agent-name">{{ stack.composeFilePath }}</span>
                 </span>
+                
             </h1>
 
             <div v-if="stack.isManagedByDockge" class="mb-3">

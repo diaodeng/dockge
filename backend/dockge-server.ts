@@ -416,7 +416,7 @@ export class DockgeServer {
                 protect: true,  // Enabled over-run protection.
             }, () => {
                 //log.debug("server", "Cron job running");
-                this.sendStackList(true);
+                // this.sendStackList(true);
             });
 
             checkVersion.startInterval();
