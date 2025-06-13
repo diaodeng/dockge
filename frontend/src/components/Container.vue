@@ -6,7 +6,7 @@
                     <h4>{{ name }}</h4>
                     <div class="flex-grow-1 d-flex justify-content-end">
                         <BsDropdown class="">
-                            <div class="btn-group-sm d-flex flex-column gap-2" role="group">
+                            <div class="btn-group-sm d-flex flex-column gap-2 text-nowrap align-items-start" role="group">
                                 <router-link
                                     v-if="!isEditMode" :to="terminalRouteLink"
                                     type="button" class="btn btn-normal me-2" disabled=""
@@ -30,7 +30,7 @@
                                 </button>
                                 <button
                                     v-if="status === 'running' || status === 'healthy' || status === 'unhealthy'"
-                                    class="btn btn-danger small me-2 circle"
+                                    class="btn btn-outline-danger small me-2 circle"
                                     type="button"
                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                     data-bs-title="Stop"
@@ -51,6 +51,28 @@
                                 >
                                     <font-awesome-icon icon="sync" class="" />
                                     <span class="ms-2">{{ $t("restartStack") }}</span>
+                                </button>
+                                <button
+                                    class="btn btn-danger me-2 small"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Down"
+                                    type="button"
+                                    :disabled="processing"
+                                    @click="downService"
+                                >
+                                    <font-awesome-icon icon="stop" class="" />
+                                    <span class="ms-2">{{ $t("downStack") }}</span>
+                                </button>
+                                <button
+                                    class="btn btn-success me-2 small"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Update"
+                                    type="button"
+                                    :disabled="processing"
+                                    @click="updateService"
+                                >
+                                    <font-awesome-icon icon="cloud-arrow-down" class="" />
+                                    <span class="ms-2">{{ $t("updateStack") }}</span>
                                 </button>
                             </div>
                         </BsDropdown>
@@ -391,6 +413,12 @@ export default defineComponent({
         },
         restartService() {
             this.$emit("restart-service", this.name);
+        },
+        downService() {
+            this.$emit("down-service", this.name);
+        },
+        updateService() {
+            this.$emit("update-service", this.name);
         }
 
     }

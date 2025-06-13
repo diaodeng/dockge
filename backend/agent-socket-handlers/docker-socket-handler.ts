@@ -366,6 +366,44 @@ export class DockerSocketHandler extends AgentSocketHandler {
             }
         });
 
+        agentSocket.on("downService", async (stackName: unknown, serviceName: unknown, callback) => {
+            try {
+                checkLogin(socket);
+
+                if (typeof stackName !== "string" || typeof serviceName !== "string") {
+                    throw new Error("Invalid stackName or serviceName");
+                }
+
+                const stack = await Stack.getStack(server, stackName, true);
+                await stack.downService(socket, serviceName);
+                callbackResult({
+                    ok: true,
+                    msg: "Service" + serviceName + " downed"
+                }, callback);
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
+        agentSocket.on("updateService", async (stackName: unknown, serviceName: unknown, callback) => {
+            try {
+                checkLogin(socket);
+
+                if (typeof stackName !== "string" || typeof serviceName !== "string") {
+                    throw new Error("Invalid stackName or serviceName");
+                }
+
+                const stack = await Stack.getStack(server, stackName, true);
+                await stack.updateService(socket, serviceName);
+                callbackResult({
+                    ok: true,
+                    msg: "Service" + serviceName + " updated"
+                }, callback);
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
         // Docker stats
         agentSocket.on("dockerStats", async (callback) => {
             try {

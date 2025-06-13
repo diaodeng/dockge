@@ -2,7 +2,7 @@
     <transition name="slide-fade" appear>
         <div>
             <h1 v-if="isAdd" class="mb-3">{{ $t("compose") }}</h1>
-            <h1 v-else class="mb-3">
+            <h1 v-else class="mb-3 d-inline-flex">
                 <Uptime :stack="globalStack" :pill="true" /> {{ stack.name }}
                 <span class="d-flex flex-column">
                     <span v-if="$root.agentCount > 1" class="agent-name">
@@ -10,7 +10,6 @@
                     </span>
                     <span v-if="stack.composeFilePath" class="agent-name">{{ stack.composeFilePath }}</span>
                 </span>
-                
             </h1>
 
             <div v-if="stack.isManagedByDockge" class="mb-3">
@@ -216,6 +215,8 @@
                                 @start-service="startService"
                                 @stop-service="stopService"
                                 @restart-service="restartService"
+                                @down-service="downService"
+                                @update-service="updateService"
                             />
                         </div>
                     </div>
@@ -983,6 +984,30 @@ export default {
             this.processing = true;
 
             this.$root.emitAgent(this.endpoint, "restartService", this.stack.name, serviceName, (res) => {
+                this.processing = false;
+                this.$root.toastRes(res);
+
+                if (res.ok) {
+                    this.requestServiceStatus(); // Refresh service status
+                }
+            });
+        },
+        downService(serviceName) {
+            this.processing = true;
+
+            this.$root.emitAgent(this.endpoint, "downService", this.stack.name, serviceName, (res) => {
+                this.processing = false;
+                this.$root.toastRes(res);
+
+                if (res.ok) {
+                    this.requestServiceStatus(); // Refresh service status
+                }
+            });
+        },
+        updateService(serviceName) {
+            this.processing = true;
+
+            this.$root.emitAgent(this.endpoint, "updateService", this.stack.name, serviceName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 

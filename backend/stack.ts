@@ -36,7 +36,7 @@ export class Stack {
 
     protected combinedTerminal? : Terminal;
 
-    protected static managedStackList: Map<string, Map<string, Stack>> = new Map();
+    protected static managedStackList: Map<string, Stack> = new Map();
 
     constructor(server : DockgeServer, name : string, composeYAML? : string, composeENV? : string, skipFSOperations = false) {
         this.name = name;
@@ -306,10 +306,9 @@ export class Stack {
 
     static async getStackList(server : DockgeServer, useCacheForManaged = false) : Promise<Map<string, Stack>> {
         let stackList : Map<string, Stack> = new Map<string, Stack>();
-        let stackKey : string = server.config.hostname || "" + server.config.port || "";
         // Use cached stack list?
-        if (useCacheForManaged && this.managedStackList.get(stackKey) !== undefined && this.managedStackList.get(stackKey)!.size > 0) {
-            stackList = this.managedStackList.get(stackKey)! ;
+        if (useCacheForManaged && this.managedStackList.size > 0) {
+            stackList = this.managedStackList;
             return stackList;
         }
 
@@ -415,7 +414,7 @@ export class Stack {
             }
         }
 
-        this.managedStackList.set(stackKey, stackList);
+        this.managedStackList = stackList;
         return stackList;
     }
 
@@ -464,7 +463,6 @@ export class Stack {
 
     static async getStack(server: DockgeServer, stackName: string, skipFSOperations = false) : Promise<Stack> {
         let stack: Stack | undefined;
-        const stackKey = server.config.hostname || "" + server.config.port || "";
         if (!skipFSOperations) {
             let stackList = await this.getStackList(server, true);
             stack = stackList.get(stackName);
@@ -473,11 +471,8 @@ export class Stack {
             }
         } else {
             // search for known stack with this name
-            if (this.managedStackList && this.managedStackList.get(stackKey)) {
-                const agentStacks = this.managedStackList.get(stackKey);
-                if (agentStacks) {
-                    stack = agentStacks.get(stackName);
-                }
+            if (this.managedStackList && this.managedStackList.size > 0) {
+                stack = this.managedStackList.get(stackName);
             }
             if (!this.managedStackList || !stack) {
                 stack = new Stack(server, stackName, undefined, undefined, true);
@@ -698,6 +693,37 @@ export class Stack {
             throw new Error(`Failed to restart service ${serviceName}, please check logs for more information.`);
         }
 
+        return exitCode;
+    }
+
+    async downService(socket: DockgeSocket, serviceName: string) : Promise<number> {
+        const terminalName = getComposeTerminalName(socket.endpoint, this.name);
+        let exitCode = await Terminal.exec(this.server, socket, terminalName, "docker", [ "compose", "down", serviceName ], this.path);
+        if (exitCode !== 0) {
+            throw new Error("Failed to down, please check the terminal output for more information.");
+        }
+        return exitCode;
+    }
+
+    async updateService(socket: DockgeSocket, serviceName: string) {
+        const terminalName = getComposeTerminalName(socket.endpoint, this.name);
+
+        let exitCode = await Terminal.exec(this.server, socket, terminalName, "docker", [ "compose", "pull", serviceName ], this.path);
+        if (exitCode !== 0) {
+            throw new Error("Failed to pull, please check the terminal output for more information.");
+        }
+
+        // If the stack is not running, we don't need to restart it
+        await this.updateStatus();
+        log.debug("update", "Status: " + this.status);
+        if (this.status !== RUNNING) {
+            return exitCode;
+        }
+
+        exitCode = await Terminal.exec(this.server, socket, terminalName, "docker", [ "compose", "up", "-d", "--remove-orphans", serviceName ], this.path);
+        if (exitCode !== 0) {
+            throw new Error("Failed to restart, please check the terminal output for more information.");
+        }
         return exitCode;
     }
 }
