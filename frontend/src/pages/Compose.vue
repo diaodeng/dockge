@@ -2,7 +2,7 @@
     <transition name="slide-fade" appear>
         <div>
             <h1 v-if="isAdd" class="mb-3">{{ $t("compose") }}</h1>
-            <h1 v-else class="mb-3 d-inline-flex">
+            <h1 v-else class="mb-3">
                 <Uptime :stack="globalStack" :pill="true" /> {{ stack.name }}
                 <span class="d-flex flex-column">
                     <span v-if="$root.agentCount > 1" class="agent-name">
