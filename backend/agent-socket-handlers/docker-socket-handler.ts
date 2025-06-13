@@ -5,6 +5,7 @@ import { Stack } from "../stack";
 import { AgentSocket } from "../../common/agent-socket";
 import { Terminal } from "../terminal";
 import { getComposeTerminalName } from "../../common/util-common";
+import {log} from "../log";
 
 export class DockerSocketHandler extends AgentSocketHandler {
     create(socket : DockgeSocket, server : DockgeServer, agentSocket : AgentSocket) {
@@ -437,6 +438,8 @@ export class DockerSocketHandler extends AgentSocketHandler {
         agentSocket.on("pruneImages", async (callback) => {
             try {
                 checkLogin(socket);
+                log.debug("agent-socket-handler", "Pruning images...");
+                log.debug("agent-socket-handler", server.config.hostname);
 
                 let exitCode = await Terminal.exec(server, socket, "console", "docker", ["image", "prune", "-a", "-f"], "");
 
@@ -444,7 +447,10 @@ export class DockerSocketHandler extends AgentSocketHandler {
                     callbackError(new Error("Failed to restart, please check the terminal output for more information."), callback);
                     return;
                 }
-                callbackResult({ ok: true, msg: exitCode }, callback);
+                callbackResult({
+                    ok: true,
+                    msg: exitCode
+                }, callback);
 
             } catch (e) {
                 callbackError(e, callback);
