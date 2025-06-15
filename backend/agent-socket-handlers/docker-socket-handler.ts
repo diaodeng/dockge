@@ -434,17 +434,40 @@ export class DockerSocketHandler extends AgentSocketHandler {
             }
         });
 
-        // prune images
+        // prune no tag images
         agentSocket.on("pruneImages", async (callback) => {
             try {
                 checkLogin(socket);
-                log.debug("agent-socket-handler", "Pruning images...");
+                log.debug("agent-socket-handler", "Pruning no tag images...");
                 log.debug("agent-socket-handler", server.config.hostname);
 
-                let exitCode = await Terminal.exec(server, socket, "console", "docker", ["image", "prune", "-a", "-f"], "");
+                let exitCode = await Terminal.exec(server, socket, "console", "docker", [ "image", "prune", "-f" ], "");
 
                 if (exitCode !== 0) {
-                    callbackError(new Error("Failed to restart, please check the terminal output for more information."), callback);
+                    callbackError(new Error("Failed to prune no tag images, please check the terminal output for more information."), callback);
+                    return;
+                }
+                callbackResult({
+                    ok: true,
+                    msg: exitCode
+                }, callback);
+
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
+        // prune all unused images
+        agentSocket.on("pruneAllImages", async (callback) => {
+            try {
+                checkLogin(socket);
+                log.debug("agent-socket-handler", "Pruning unused images...");
+                log.debug("agent-socket-handler", server.config.hostname);
+
+                let exitCode = await Terminal.exec(server, socket, "console", "docker", [ "image", "prune", "-a", "-f" ], "");
+
+                if (exitCode !== 0) {
+                    callbackError(new Error("Failed to prune unused images, please check the terminal output for more information."), callback);
                     return;
                 }
                 callbackResult({

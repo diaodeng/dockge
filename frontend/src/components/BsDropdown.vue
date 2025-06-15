@@ -1,9 +1,18 @@
 <!-- components/BsDropdown.vue -->
 <template>
     <div class="dropdown" ref="dropdownRoot">
-        <button
-            type="button"
-            class="btn btn-sm btn-normal btn-sm"
+<!--        <button-->
+<!--            type="button"-->
+<!--            class="btn btn-sm btn-normal btn-sm"-->
+<!--            data-bs-toggle="dropdown"-->
+<!--            :data-bs-auto-close="autoClose"-->
+<!--            aria-expanded="false"-->
+<!--        >-->
+<!--            <slot name="button-content">-->
+<!--                <i class="bi bi-caret-down-fill" />-->
+<!--            </slot>-->
+<!--        </button>-->
+        <i  :class="$root.userTheme"
             data-bs-toggle="dropdown"
             :data-bs-auto-close="autoClose"
             aria-expanded="false"
@@ -11,7 +20,7 @@
             <slot name="button-content">
                 <i class="bi bi-caret-down-fill" />
             </slot>
-        </button>
+        </i>
 
         <!-- 可嵌套 form、组件等 -->
         <div class="dropdown-menu p-4">

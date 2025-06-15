@@ -158,5 +158,11 @@
     "theme": "主题",
     "dark": "深色",
     "light": "亮色",
-    "auto": "自动"
+    "auto": "自动",
+    "pruneUnusedImages": "清理未使用的镜像",
+    "pruneAllEndpointUnusedImages": "清理所有代理节点中未使用的镜像",
+    "pruneNoTagImages": "清理没有标签的镜像",
+    "pruneUnusedImagesMsg": "清理未使用的镜像：将清理所有没使用的镜像，请谨慎操作，确定要清理？",
+    "pruneAllEndpointUnusedImagesMsg": "将清理所有代理节点中没使用的镜像，请谨慎操作，确定要清理？",
+    "pruneNoTagImagesMsg": "清理没有标签的镜像：将清理所有没标签的镜像，请谨慎操作，确定要清理？"
 }

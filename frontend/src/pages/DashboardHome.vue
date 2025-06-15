@@ -40,7 +40,7 @@
                     <div class="shadow-box big-padding">
                         <h4 class="mb-3">{{ $tc("dockgeAgent", 2) }} <span class="badge bg-warning" style="font-size: 12px;">beta</span></h4>
 
-                        <div v-for="(agent, endpoint) in $root.agentList" :key="endpoint" class="mb-3 agent">
+                        <div v-for="(agent, endpoint) in $root.agentList" :key="endpoint" class="mb-3 agent d-flex align-items-center">
                             <!-- Agent Status -->
                             <template v-if="$root.agentStatusList[endpoint]">
                                 <span v-if="$root.agentStatusList[endpoint] === 'online'" class="badge bg-primary me-2">{{ $t("agentOnline") }}</span>
@@ -55,9 +55,46 @@
 
 
                             <!-- Edit Name  -->
-                            <button type="button" class="btn btn-sm btn-secondary pe-2 ps-2" >
-                                <font-awesome-icon icon="pen-to-square" @click="showEditAgentNameDialog[agent.url] = !showEditAgentNameDialog[agent.url]" />
-                            </button>
+                            <font-awesome-icon icon="pen-to-square" class="me-2" @click="showEditAgentNameDialog[agent.url] = !showEditAgentNameDialog[agent.url]" />
+                            <font-awesome-icon v-if="endpoint !== ''" icon="trash" class="me-2" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
+
+
+                            <!--more-->
+                            <BsDropdown>
+                                <template #button-content>
+                                    <i class="bi bi-three-dots"></i>
+                                </template>
+                                <div class="btn-group-sm d-flex flex-column gap-2 text-nowrap align-items-start" role="group">
+                                    <!-- Remove Button -->
+                                    <button v-if="false" type="submit" class="btn btn-danger btn-sm rounded ms-2 ps-2 pe-2">
+                                        <font-awesome-icon icon="trash" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
+                                    </button>
+                                    <!-- pruneNoTagImages -->
+                                    <button
+                                        class="btn btn-warning me-2 small"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-title="Down"
+                                        type="button"
+                                        :disabled="processing"
+                                        @click="showPruneNoTagImagesDialog[agent.url] = !showPruneNoTagImagesDialog[agent.url]"
+                                    >
+                                        <font-awesome-icon icon="trash" class="" />
+                                        <span class="ms-2">{{ $t("pruneNoTagImages") }}</span>
+                                    </button>
+                                    <!-- pruneUnusedImages -->
+                                    <button
+                                        class="btn btn-danger me-2 small"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-title="Update"
+                                        type="button"
+                                        :disabled="processing"
+                                        @click="showPruneUnusedImagesDialog[agent.url] = !showPruneUnusedImagesDialog[agent.url]"
+                                    >
+                                        <font-awesome-icon icon="trash" class="" />
+                                        <span class="ms-2">{{ $t("pruneUnusedImages") }}</span>
+                                    </button>
+                                </div>
+                            </BsDropdown>
 
                             <!-- Edit Dialog -->
                             <BModal v-model="showEditAgentNameDialog[agent.url]"
@@ -71,11 +108,6 @@
                                 <input id="updatedName" v-model="agent.name" type="text" class="form-control" optional>
                             </BModal>
 
-                            <!-- Remove Button -->
-                            <button v-if="endpoint !== ''" type="submit" class="btn btn-danger btn-sm rounded ms-2 ps-2 pe-2">
-                                <font-awesome-icon icon="trash" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
-                            </button>
-
                             <!-- Remove Agent Dialog -->
                             <BModal v-model="showRemoveAgentDialog[agent.url]"
                                     :okTitle="$t('removeAgent')"
@@ -84,6 +116,26 @@
                                     @ok="removeAgent(agent.url)">
                                 <p>{{ agent.url }}</p>
                                 {{ $t("removeAgentMsg") }}
+                            </BModal>
+
+                            <!-- prune no tag images Dialog -->
+                            <BModal v-model="showPruneNoTagImagesDialog[agent.url]"
+                                    :okTitle="$t('pruneNoTagImages')"
+                                    okVariant="danger"
+                                    :title="agent.url + '(' + agent.name + ')'"
+                                    @ok="pruneImages(endpoint)">
+                                <p>{{ endpoint }}</p>
+                                {{ $t("pruneNoTagImagesMsg") }}
+                            </BModal>
+
+                            <!-- prune unused images Dialog -->
+                            <BModal v-model="showPruneUnusedImagesDialog[agent.url]"
+                                    :okTitle="$t('pruneUnusedImages')"
+                                    okVariant="danger"
+                                    :title="agent.url + '(' + agent.name + ')'"
+                                    @ok="pruneAllImages(endpoint)">
+                                <p>{{ endpoint }}</p>
+                                {{ $t("pruneUnusedImagesMsg") }}
                             </BModal>
                         </div>
 
@@ -126,9 +178,11 @@
 
 <script>
 import { statusNameShort } from "../../../common/util-common";
+import BsDropdown from "../components/BsDropdown.vue";
 
 export default {
     components: {
+        BsDropdown
 
     },
     props: {
@@ -152,13 +206,16 @@ export default {
             showAgentForm: false,
             showRemoveAgentDialog: {},
             showEditAgentNameDialog: {},
+            showPruneNoTagImagesDialog: {},
+            showPruneUnusedImagesDialog: {},
             connectingAgent: false,
             agent: {
                 url: "http://",
                 username: "",
                 password: "",
                 name: "",
-            }
+            },
+            processing: false
         };
     },
 
@@ -328,6 +385,21 @@ export default {
             }
 
         },
+        pruneImages(endpoint) {
+            this.processing = true;
+            this.$root.emitAgent(endpoint, "pruneImages", (res) => {
+                this.$root.toastRes(res);
+                this.processing = false;
+            });
+        },
+
+        pruneAllImages(endpoint) {
+            this.processing = true;
+            this.$root.emitAgent(endpoint, "pruneAllImages", (res) => {
+                this.$root.toastRes(res);
+                this.processing = false;
+            });
+        }
     }
 };
 </script>

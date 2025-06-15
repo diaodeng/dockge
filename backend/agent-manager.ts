@@ -282,6 +282,7 @@ export class AgentManager {
     emitToAllEndpoints(eventName: string, ...args : unknown[]) {
         log.debug("agent-manager", "Emitting event to all endpoints");
         for (let endpoint in this.agentSocketList) {
+            log.debug("agent-manager", "Emitting event to " + endpoint);
             this.emitToEndpoint(endpoint, eventName, ...args).catch((e) => {
                 log.warn("agent-manager", e.message);
             });

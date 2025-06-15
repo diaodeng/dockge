@@ -401,7 +401,7 @@ export class Stack {
                         log.info("getStackList", `... but it was ignored. A project named ${inferredProjectName} already exists`);
                     } else {
                         let stack = new Stack(server, inferredProjectName);
-                        stack._status = UNKNOWN;
+                        stack._status = CREATED_FILE;
                         stack._configFilePath = configFilePath;
                         stack._composeFileName = configFilename;
                         stackList.set(inferredProjectName, stack);

@@ -158,5 +158,11 @@
     "theme": "Theme",
     "dark": "Dark",
     "light": "Light",
-    "auto": "Auto"
+    "auto": "Auto",
+    "pruneUnusedImages": "Prune unused images",
+    "pruneAllEndpointUnusedImages": "Clean up unused images in all agent",
+    "pruneNoTagImages": "Prune no tag images",
+    "pruneUnusedImagesMsg": "Prune unused images:All unused images will be cleaned. Please be careful to be sure you want to clean it?",
+    "pruneAllEndpointUnusedImagesMsg": "Prune all endpoint unused images:All images that are not used in endpoints will be cleaned. Please be careful and be sure to clean them?",
+    "pruneNoTagImagesMsg": "Prune no tag images:All no tag images will be cleaned. Please be careful to be sure you want to clean it?"
 }

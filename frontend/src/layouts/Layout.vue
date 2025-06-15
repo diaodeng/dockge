@@ -76,9 +76,9 @@
                             </li>-->
 
                             <li>
-                                <button class="dropdown-item" @click="pruneImages">
+                                <button class="dropdown-item" @click="showPruneUnusedImagesDialog = !showPruneUnusedImagesDialog">
                                     <font-awesome-icon icon="trash"/>
-                                    {{ $t("pruneImages") }}
+                                    {{ $t("pruneUnusedImages") }}
                                 </button>
                             </li>
 
@@ -110,6 +110,15 @@
         </header>
 
         <main>
+            <!-- prune unused images Dialog -->
+            <BModal v-model="showPruneUnusedImagesDialog"
+                    :okTitle="$t('pruneUnusedImages')"
+                    okVariant="danger"
+                    :title="$t('pruneAllEndpointUnusedImages')"
+                    @ok="pruneImages()">
+                <p>{{ endpoint }}</p>
+                {{ $t("pruneAllEndpointUnusedImagesMsg") }}
+            </BModal>
             <div v-if="$root.socketIO.connecting" class="container mt-5">
                 <h4>{{ $t("connecting...") }}</h4>
             </div>
@@ -132,7 +141,10 @@ export default {
     },
 
     data() {
-        return {};
+        return {
+            showPruneUnusedImagesDialog: false,
+            processing: false,
+        };
     },
 
     computed: {
@@ -180,14 +192,18 @@ export default {
 
     methods: {
         scanFolder() {
+            this.processing = true;
             this.$root.emitAgent(ALL_ENDPOINTS, "requestStackList", (res) => {
                 this.$root.toastRes(res);
+                this.processing = false;
             });
         },
 
         pruneImages() {
+            this.processing = true;
             this.$root.emitAgent(ALL_ENDPOINTS, "pruneImages", (res) => {
                 this.$root.toastRes(res);
+                this.processing = false;
             });
         },
     },
