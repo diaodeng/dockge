@@ -79,6 +79,12 @@ export class AgentManager {
      * @param name
      */
     async add(url: string, username: string, password: string, name: string): Promise<Agent> {
+        let agent = await R.findOne("agent", " url =? or name = ? ", [
+            url, name,
+        ]);
+        if (agent) {
+            throw new Error("Agent already exists, please check the URL or name.");
+        }
         let bean = R.dispense("agent") as Agent;
         bean.url = url;
         bean.username = username;
