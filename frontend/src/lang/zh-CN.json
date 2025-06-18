@@ -109,6 +109,7 @@
     "dockgeURL": "Dockge地址 (例如 http://127.0.0.1:5001)",
     "agentOnline": "在线",
     "agentOffline": "离线",
+    "agentDisabled": "已禁用",
     "connecting": "连接中",
     "connect": "连接",
     "addAgent": "添加代理",

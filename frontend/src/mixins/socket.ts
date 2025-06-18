@@ -64,6 +64,9 @@ export default defineComponent({
             }
 
             for (let endpoint in this.allAgentStackList) {
+                if (this.agentStatusList[endpoint] === "disabled" || !(endpoint in this.agentList)) {
+                    continue;
+                }
                 let instance = this.allAgentStackList[endpoint];
                 for (let stackName in instance.stackList) {
                     list[stackName + "_" + endpoint] = instance.stackList[stackName];
@@ -177,7 +180,7 @@ export default defineComponent({
 
             // Handling events from agents
             let agentSocket = new AgentSocket();
-            socket.on("agent", (eventName : unknown, ...args : unknown[]) => {
+            socket.on("agent", (eventName : string, ...args : unknown[]) => {
                 agentSocket.call(eventName, ...args);
             });
 
@@ -247,12 +250,12 @@ export default defineComponent({
             });
 
             agentSocket.on("terminalWrite", (terminalName, data) => {
-                const terminal = terminalMap.get(terminalName);
+                const terminal = terminalMap.get(terminalName as string);
                 if (!terminal) {
                     //console.error("Terminal not found: " + terminalName);
                     return;
                 }
-                terminal.write(data);
+                terminal.write(data as string);
             });
 
             agentSocket.on("stackList", (res) => {

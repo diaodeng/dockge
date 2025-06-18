@@ -23,12 +23,14 @@ export class ManageAgentSocketHandler extends SocketHandler {
                 await manager.add(data.url, data.username, data.password, data.name);
 
                 // connect to the agent
-                manager.connect(data.url, data.username, data.password);
+                if (data.active) {
+                    manager.connect(data.url, data.username, data.password);
 
-                // Refresh another sockets
-                // It is a bit difficult to control another browser sessions to connect/disconnect agents, so force them to refresh the page will be easier.
-                server.disconnectAllSocketClients(undefined, socket.id);
-                manager.sendAgentList();
+                    // Refresh another sockets
+                    // It is a bit difficult to control another browser sessions to connect/disconnect agents, so force them to refresh the page will be easier.
+                    server.disconnectAllSocketClients(undefined, socket.id);
+                    manager.sendAgentList();
+                }
 
                 callbackResult({
                     ok: true,
@@ -82,6 +84,28 @@ export class ManageAgentSocketHandler extends SocketHandler {
                 callbackResult({
                     ok: true,
                     msg: "agentUpdatedSuccessfully",
+                    msgi18n: true,
+                }, callback);
+            } catch (e) {
+                callbackError(e, callback);
+            }
+        });
+
+        // switchAgentStatus
+        socket.on("switchAgentStatus", async (url : string, callback : unknown) => {
+            try {
+                log.debug("manage-agent-socket-handler", "switchAgentStatus");
+                checkLogin(socket);
+
+                let manager = socket.instanceManager;
+                await manager.switchAgentStatus(url);
+
+                server.disconnectAllSocketClients(undefined, socket.id);
+                manager.sendAgentList();
+
+                callbackResult({
+                    ok: true,
+                    msg: "agentStatusChangeSuccessfully",
                     msgi18n: true,
                 }, callback);
             } catch (e) {

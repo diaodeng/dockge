@@ -24,6 +24,7 @@ export class Agent extends BeanModel {
             username: this.username,
             endpoint: this.endpoint,
             name: this.name,
+            active: this.active
         };
     }
 

@@ -6,6 +6,7 @@ import { isDev, LooseObject, sleep } from "../common/util-common";
 import semver from "semver";
 import { R } from "redbean-node";
 import dayjs, { Dayjs } from "dayjs";
+import { Bean } from "redbean-node/dist/bean";
 
 /**
  * Dockge Instance Manager
@@ -71,6 +72,12 @@ export class AgentManager {
         });
     }
 
+    async getAgentFromDatabaseByUrl(url : string) : Promise<Bean | null> {
+        return await R.findOne("agent", " url =? ", [
+            url,
+        ]);
+    }
+
     /**
      *
      * @param url
@@ -99,9 +106,7 @@ export class AgentManager {
      * @param url
      */
     async remove(url : string) {
-        let bean = await R.findOne("agent", " url = ? ", [
-            url,
-        ]);
+        let bean = await this.getAgentFromDatabaseByUrl(url);
 
         if (bean) {
             await R.trash(bean);
@@ -120,9 +125,7 @@ export class AgentManager {
      * @param updatedName
      */
     async update(url: string, updatedName: string) {
-        const agent = await R.findOne("agent", " url = ? ", [
-            url,
-        ]);
+        const agent = await this.getAgentFromDatabaseByUrl(url);
         if (agent) {
             agent.name = updatedName;
             await R.store(agent);
@@ -145,7 +148,7 @@ export class AgentManager {
             return;
         }
 
-        if (this.agentSocketList[endpoint]) {
+        if (this.agentSocketList[endpoint] && this.agentSocketList[endpoint].connected && this.agentLoggedInList[endpoint]) {
             log.debug("agent-manager", "Already connected to the socket server: " + endpoint);
             return;
         }
@@ -222,6 +225,8 @@ export class AgentManager {
     disconnect(endpoint : string) {
         let client = this.agentSocketList[endpoint];
         client?.disconnect();
+        delete this.agentSocketList[endpoint];
+        this.agentLoggedInList[endpoint] = false;
     }
 
     async connectAll() {
@@ -240,6 +245,10 @@ export class AgentManager {
 
         for (let endpoint in list) {
             let agent = list[endpoint];
+            if (!agent.active) {
+                log.debug("agent-manager", "Skipping disabled agent: " + agent.name + "[" + agent.url + "]");
+                continue;
+            }
             this.connect(agent.url, agent.username, agent.password);
         }
     }
@@ -305,6 +314,7 @@ export class AgentManager {
             username: "",
             endpoint: "",
             name: "",
+            active: true,
         };
 
         for (let endpoint in list) {
@@ -316,5 +326,36 @@ export class AgentManager {
             ok: true,
             agentList: result,
         });
+    }
+
+    async agentIsEnable(url : string) : Promise<boolean> {
+        const agent = await this.getAgentFromDatabaseByUrl(url);
+        return agent ? agent.active : false;
+    }
+
+    // Switch agent status to enable or disable
+    async switchAgentStatus(url : string) : Promise<void> {
+        const agent = await this.getAgentFromDatabaseByUrl(url);
+        if (agent) {
+            agent.active = !agent.active;
+            await R.store(agent);
+            if (agent.active) {
+                this.connect(url, agent.username, agent.password);
+            }else {
+                await this.emitToEndpoint(agent.endpoint, "stackList", {
+                    ok: false,
+                    msg: "agentDisabled",
+                    endpoint: agent.endpoint,
+                    stackList: {},
+                });
+                this.disconnect(agent.endpoint);
+                this.socket.emit("agentStatus", {
+                    endpoint: agent.endpoint,
+                    status: "disabled",
+                });
+            }
+        } else {
+            throw new Error("Agent not found");
+        }
     }
 }

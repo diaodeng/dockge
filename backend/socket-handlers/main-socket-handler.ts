@@ -143,7 +143,7 @@ export class MainSocketHandler extends SocketHandler {
 
             if (user) {
                 if (user.twofa_status === 0) {
-                    server.afterLogin(socket, user);
+                    await server.afterLogin(socket, user);
 
                     log.info("auth", `Successfully logged in user ${data.username}. IP=${clientIP}`);
 
@@ -167,7 +167,7 @@ export class MainSocketHandler extends SocketHandler {
                     const verify = notp.totp.verify(data.token, user.twofa_secret, twoFAVerifyOptions);
 
                     if (user.twofa_last_token !== data.token && verify) {
-                        server.afterLogin(socket, user);
+                        await server.afterLogin(socket, user);
 
                         await R.exec("UPDATE `user` SET twofa_last_token = ? WHERE id = ? ", [
                             data.token,

@@ -45,19 +45,26 @@
                             <template v-if="$root.agentStatusList[endpoint]">
                                 <span v-if="$root.agentStatusList[endpoint] === 'online'" class="badge bg-primary me-2">{{ $t("agentOnline") }}</span>
                                 <span v-else-if="$root.agentStatusList[endpoint] === 'offline'" class="badge bg-danger me-2">{{ $t("agentOffline") }}</span>
+                                <span v-else-if="$root.agentStatusList[endpoint] === 'disabled'" class="badge bg-secondary me-2">{{ $t("agentDisabled") }}</span>
                                 <span v-else class="badge bg-secondary me-2">{{ $t($root.agentStatusList[endpoint]) }}</span>
                             </template>
+                            <template v-else>
+                                <span class="badge bg-secondary me-2">{{ $t("agentDisabled") }}</span>
+                            </template>
+
+                            <div class="form-check form-switch" v-if="endpoint !== ''">
+                                <input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked" :checked="agent.active" @change="switchAgentStatus(agent)">
+                            </div>
 
                             <!-- Agent Display Name -->
                             <span v-if="endpoint === ''" class="badge bg-secondary me-2">{{ $t("currentEndpoint") }}</span>
                             <span v-else-if="agent.name === '' || agent.name === null" :href="agent.url" class="me-2">{{ endpoint }}</span>
                             <span v-else :href="agent.url" class="me-2">{{ agent.name }}</span>
 
-
                             <!-- Edit Name  -->
                             <font-awesome-icon icon="pen-to-square" class="me-2" @click="showEditAgentNameDialog[agent.url] = !showEditAgentNameDialog[agent.url]" />
+                            <!-- Remove Button -->
                             <font-awesome-icon v-if="endpoint !== ''" icon="trash" class="me-2" @click="showRemoveAgentDialog[agent.url] = !showRemoveAgentDialog[agent.url]" />
-
 
                             <!--more-->
                             <BsDropdown>
@@ -75,7 +82,7 @@
                                         data-bs-toggle="tooltip" data-bs-placement="top"
                                         data-bs-title="Down"
                                         type="button"
-                                        :disabled="processing"
+                                        :disabled="processing || !agent.active"
                                         @click="showPruneNoTagImagesDialog[agent.url] = !showPruneNoTagImagesDialog[agent.url]"
                                     >
                                         <font-awesome-icon icon="trash" class="" />
@@ -87,7 +94,7 @@
                                         data-bs-toggle="tooltip" data-bs-placement="top"
                                         data-bs-title="Update"
                                         type="button"
-                                        :disabled="processing"
+                                        :disabled="processing || !agent.active"
                                         @click="showPruneUnusedImagesDialog[agent.url] = !showPruneUnusedImagesDialog[agent.url]"
                                     >
                                         <font-awesome-icon icon="trash" class="" />
@@ -396,6 +403,16 @@ export default {
         pruneAllImages(endpoint) {
             this.processing = true;
             this.$root.emitAgent(endpoint, "pruneAllImages", (res) => {
+                this.$root.toastRes(res);
+                this.processing = false;
+            });
+        },
+
+        switchAgentStatus(agent) {
+            this.processing = true;
+            console.log(agent.url, agent.active);
+            this.$root.getSocket().emit("switchAgentStatus", agent.url, (res) => {
+                agent.active = !agent.active;
                 this.$root.toastRes(res);
                 this.processing = false;
             });
