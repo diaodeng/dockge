@@ -10,14 +10,14 @@
 
                 <div class="placeholder"></div>
                 <div class="search-wrapper" style="flex-grow: 1">
-                    <a v-if="searchText == ''" class="search-icon">
+                    <a v-if="searchText === ''" class="search-icon">
                         <font-awesome-icon icon="search"/>
                     </a>
-                    <a v-if="searchText != ''" class="search-icon" style="cursor: pointer" @click="clearSearchText">
+                    <a v-if="searchText !== ''" class="search-icon" style="cursor: pointer" @click="clearSearchText">
                         <font-awesome-icon icon="times"/>
                     </a>
                     <form style="flex-grow: 1">
-                        <input v-model="searchText" class="form-control search-input" autocomplete="off"/>
+                        <input v-model="searchText" class="form-control search-input" autocomplete="off" />
                     </form>
                 </div>
             </div>

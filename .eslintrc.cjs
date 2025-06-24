@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const autoGlobals = require("./.eslintrc-auto-import.json");
+
 module.exports = {
     root: true,
     env: {
@@ -15,11 +18,15 @@ module.exports = {
     },
     plugins: [
         "@typescript-eslint",
-        "jsdoc"
+        "jsdoc",
+        "vue"
     ],
+    globals: {
+        ...autoGlobals.globals
+    },
     rules: {
         "yoda": "error",
-        "linebreak-style": [ "error", "unix" ],
+        "linebreak-style": "off",
         "camelcase": [ "warn", {
             "properties": "never",
             "ignoreImports": true
@@ -95,6 +102,6 @@ module.exports = {
         "@typescript-eslint/no-unused-vars": [ "warn", {
             "args": "none"
         }],
-        "prefer-const" : "off",
+        "prefer-const": "off",
     },
 };

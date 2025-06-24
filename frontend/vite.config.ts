@@ -3,7 +3,9 @@ import vue from "@vitejs/plugin-vue";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from "unplugin-vue-components/resolvers";
 import viteCompression from "vite-plugin-compression";
+import AutoImport from "unplugin-auto-import/vite";
 import "vue";
+import { resolve } from 'path';
 
 const viteCompressionFilter = /\.(js|mjs|json|css|html|svg)$/i;
 
@@ -20,6 +22,15 @@ export default defineConfig({
         outDir: "../frontend-dist",
     },
     plugins: [
+        AutoImport({
+            imports: [ "vue" ],
+            dts: "src/auto-imports.d.ts",
+            eslintrc: {
+                enabled: true,
+                filepath: resolve(__dirname, "../.eslintrc-auto-import.json"),
+                globalsPropValue: true,
+            },
+        }),
         vue(),
         Components({
             resolvers: [ BootstrapVueNextResolver() ],

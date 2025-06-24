@@ -5,7 +5,12 @@
             <span>{{ stackName }}</span>
         </div>
         <div class="icon-container">
-            <font-awesome-icon :icon="stack.isGitRepo ? 'code-branch' : 'file'" />
+            <a class="rounded">
+                <font-awesome-icon :icon="stack.isGitRepo ? 'code-branch' : 'file'" class="fa-fw" />
+            </a>
+            <a class="bg-white rounded">
+                <font-awesome-icon icon="ellipsis-vertical" class="fa-fw" @click.prevent />
+            </a>
         </div>
     </router-link>
 </template>
@@ -135,7 +140,7 @@ export default {
     text-decoration: none;
     display: flex;
     align-items: center;
-    min-height: 52px;
+    min-height: 40px;
     border-radius: 10px;
     transition: all ease-in-out 0.15s;
     width: 100%;

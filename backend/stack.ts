@@ -2,7 +2,7 @@ import { DockgeServer } from "./dockge-server";
 import fs, { promises as fsAsync } from "fs";
 import { log } from "./log";
 import yaml from "yaml";
-import {DockgeSocket, fileExists, readDirWithDepth, ValidationError} from "./util-server";
+import { DockgeSocket, fileExists, readDirWithDepth, ValidationError } from "./util-server";
 import path from "path";
 import {
     acceptedComposeFileNames,
@@ -23,6 +23,31 @@ import childProcessAsync from "promisify-child-process";
 import { Settings } from "./settings";
 import { execSync } from "child_process";
 import ini from "ini";
+import { StackNodeType as stackNodeType } from "../common/enums";
+
+export class StackNode {
+    nodeName: string;
+    nodeType : stackNodeType;
+    children: Map<string, StackNode> = new Map();
+    stack?: Stack;
+
+    constructor(nodeName: string, nodeType: stackNodeType, children?: Map<string, StackNode>, stack?: Stack) {
+        this.nodeName = nodeName;
+        this.nodeType = nodeType;
+        this.children = children;
+        this.stack = stack;
+    }
+
+    async toJson(endpoint: string) :Promise<object> {
+        return {
+            nodeName: this.nodeName,
+            nodeType: this.nodeType,
+            children: this.children ? Array.from(this.children.values()).map(child => child.toJson(endpoint)) : [],
+            stack: this.stack?.toSimpleJSON(endpoint),
+            endpoint
+        };
+    }
+}
 
 export class Stack {
 
@@ -36,7 +61,7 @@ export class Stack {
 
     protected combinedTerminal? : Terminal;
 
-    protected static managedStackList: Map<string, Stack> = new Map();
+    protected static managedStackList: StackNode = new StackNode(stackNodeType.ROOT, stackNodeType.ROOT);
 
     constructor(server : DockgeServer, name : string, composeYAML? : string, composeENV? : string, skipFSOperations = false) {
         this.name = name;
@@ -93,8 +118,9 @@ export class Stack {
             gitUrl: this.gitUrl,
             branch: this.branch,
             webhook: this.webhook,
+            composeFilePath: this._configFilePath,
             composeFileName: this._composeFileName,
-            endpoint,
+            endpoint
         };
     }
 
@@ -304,13 +330,45 @@ export class Stack {
         return false;
     }
 
-    static async getStackList(server : DockgeServer, useCacheForManaged = false) : Promise<Map<string, Stack>> {
-        let stackList : Map<string, Stack> = new Map<string, Stack>();
+    /**
+     * {isNew} if not exit to create
+     * */
+    static __findStockNodeFromTree(stacksDir : string, nodeChildren : Map<string, Stack>, isNew : boolean) : Map<string, Stack>|undefined {
+        const pathComponents = stacksDir.split(path.sep);
+        let currentNode = nodeChildren;
+        for (const component of pathComponents) {
+            if (!component) {
+                continue;
+            }
+            if (!currentNode.get(component)) {
+                if (!isNew) {
+                    return undefined;
+                }
+                currentNode.set(component, new StackNode(component, stackNodeType.FOLDER, new Map<string, StackNode>()));
+            }
+            currentNode = currentNode.get(component)!.children!;
+        }
+        return currentNode;
+    }
+
+    static findStackFromTree(stackDir : string, stackNode: StackNode) : StackNode|undefined {
+        const stackNodeMap = Stack.__findStockNodeFromTree(stackDir, stackNode, false);
+        const stackName = path.basename(stackDir);
+        if (stackNodeMap && stackNodeMap[stackName]) {
+            return stackNodeMap[stackName];
+        }
+    }
+
+    static async getStackList(server : DockgeServer, useCacheForManaged = false) : Promise<StackNode> {
+
         // Use cached stack list?
         if (useCacheForManaged && this.managedStackList.size > 0) {
-            stackList = this.managedStackList;
-            return stackList;
+            return this.managedStackList;
         }
+
+        // 构建目录树
+        let childrenNodeTree: Map<string, StackNode> = new Map<string, StackNode>();
+        let directoryRootTree: StackNode = new StackNode(stackNodeType.ROOT, stackNodeType.ROOT, childrenNodeTree);
 
         // Get status from docker compose ls
         let res = undefined;
@@ -321,16 +379,14 @@ export class Stack {
             });
 
             if (!res || !res.stdout) {
-                log.warn("getStackList", "No response from docker compose daemon when attempting to retrieve list of stacks");
+                log.warn("stack.getStackList", "No response from docker compose daemon when attempting to retrieve list of stacks");
                 // return stackList;
             } else {
                 composeList = JSON.parse(res.stdout.toString());
             }
         } catch (e) {
-            log.warn("getStackList", "Failed to get list of stacks from docker compose daemon");
+            log.warn("stack.getStackList", "Failed to get list of stacks from docker compose daemon");
         }
-
-        let pathSearchTree: ArbitrarilyNestedLooseObject = {}; // search structure for matching paths
 
         for (let composeStack of composeList) {
             try {
@@ -344,24 +400,14 @@ export class Stack {
                     // skip dockge if not managed by dockge
                     continue;
                 }
-                // log.info("composeStack.Name： ", composeStack.Name);
-                // log.info("getStackList.stack： ", stack);
-                stackList.set(composeStack.Name, stack);
 
-                // add project path to search tree so we can quickly decide if we have seen it before later
-                // e.g. path "/opt/stacks" would yield the tree { opt: stacks: {} }
-                path.join(stack._configFilePath, stack._composeFileName).split(path.sep).reduce((searchTree, pathComponent) => {
-                    if (pathComponent == "") {
-                        return searchTree;
-                    }
-                    if (!searchTree[pathComponent]) {
-                        searchTree[pathComponent] = {};
-                    }
-                    return searchTree[pathComponent];
-                }, pathSearchTree);
+                // 将项目添加到目录树
+                let currentNode = Stack.__findStockNodeFromTree(stack._configFilePath, childrenNodeTree, true);
+                currentNode.set(composeStack.Name, new StackNode(composeStack.Name, stackNodeType.STACK, new Map<string, StackNode>(), stack));
+
             } catch (e) {
                 if (e instanceof Error) {
-                    log.error("getStackList", `Failed to get stack ${composeStack.Name}, error: ${e.message}`);
+                    log.error("stack.getStackList", `Failed to get stack ${composeStack.Name}, error: ${e.message}`);
                 }
             }
         }
@@ -376,46 +422,39 @@ export class Stack {
             let depth = process.env.STACK_CHECK_DEPTH;
             let rawFilesList = readDirWithDepth(server.stacksDir, depth ? parseInt(depth) : 2);
             let acceptedComposeFiles = rawFilesList.filter((dirEnt: fs.Dirent) => dirEnt.isFile() && !!dirEnt.name.match(acceptedComposeFileNamePattern));
-            log.debug("getStackList", `Folder scan yielded ${acceptedComposeFiles.length} files`);
+            log.debug("stack.getStackList", `Folder scan yielded ${acceptedComposeFiles.length} files`);
             for (let composeFile of acceptedComposeFiles) {
                 // check if we have seen this file before
                 let fullPath = composeFile.parentPath;
-                let previouslySeen = fullPath.split(path.sep).reduce((searchTree: ArbitrarilyNestedLooseObject | boolean, pathComponent) => {
-                    if (pathComponent == "") {
-                        return searchTree;
-                    }
 
-                    // end condition
-                    if (searchTree == false || !(searchTree as ArbitrarilyNestedLooseObject)[pathComponent]) {
-                        return false;
-                    }
+                // a file with an accepted compose filename has been found that did not appear in `docker compose ls`. Use its config file path as a temp name
+                log.info("stack.getStackList", `Found project unknown to docker compose: ${fullPath}/${composeFile.name}`);
+                let [ configFilePath, configFilename, inferredProjectName ] = [ fullPath, composeFile.name, path.basename(fullPath) ];
 
-                    // path (so far) has been previously seen
-                    return (searchTree as ArbitrarilyNestedLooseObject)[pathComponent];
-                }, pathSearchTree);
-                if (!previouslySeen) {
-                    // a file with an accepted compose filename has been found that did not appear in `docker compose ls`. Use its config file path as a temp name
-                    log.info("getStackList", `Found project unknown to docker compose: ${fullPath}/${composeFile.name}`);
-                    let [ configFilePath, configFilename, inferredProjectName ] = [ fullPath, composeFile.name, path.basename(fullPath) ];
-                    if (stackList.get(inferredProjectName)) {
-                        log.info("getStackList", `... but it was ignored. A project named ${inferredProjectName} already exists`);
-                    } else {
-                        let stack = new Stack(server, inferredProjectName);
-                        stack._status = CREATED_FILE;
-                        stack._configFilePath = configFilePath;
-                        stack._composeFileName = configFilename;
-                        stackList.set(inferredProjectName, stack);
-                    }
+                const stackDir = path.dirname(fullPath);
+                const stackName = path.basename(fullPath);
+                let currentNode = Stack.__findStockNodeFromTree(fullPath, childrenNodeTree, true);
+                if (stackName in currentNode) {
+                    continue;
                 }
+
+                let stack = new Stack(server, inferredProjectName);
+                stack._status = CREATED_FILE;
+                stack._configFilePath = configFilePath;
+                stack._composeFileName = configFilename;
+
+                currentNode.set(inferredProjectName, new StackNode(inferredProjectName, stackNodeType.STACK, undefined, stack));
+
             }
         } catch (e) {
             if (e instanceof Error) {
-                log.error("getStackList", `Got error searching for undiscovered stacks:\n${e.message}`);
+                log.error("stack.getStackList", `Got error searching for undiscovered stacks:\n${e.message}`);
+                log.exception("stack.getStackList", e);
             }
         }
 
-        this.managedStackList = stackList;
-        return stackList;
+        this.managedStackList = directoryRootTree;
+        return directoryRootTree;
     }
 
     /**
@@ -462,25 +501,28 @@ export class Stack {
     }
 
     static async getStack(server: DockgeServer, stackName: string, skipFSOperations = false) : Promise<Stack> {
+        let stackNode: StackNode | undefined;
         let stack: Stack | undefined;
         if (!skipFSOperations) {
             let stackList = await this.getStackList(server, true);
-            stack = stackList.get(stackName);
-            if (!stack || !await fileExists(stack.path) || !(await fsAsync.stat(stack.path)).isDirectory() ) {
+            stackNode = Stack.findStackFromTree(stackName, stackList);
+            if (!stackNode || !stackNode.stack || !await fileExists(stackNode.stack!.path) || !(await fsAsync.stat(stackNode.stack.path)).isDirectory() ) {
                 throw new ValidationError(`getStack; Stack ${stackName} not found in ${stack ? stack._configFilePath : "unknown path"}`);
             }
+            stack = stackNode.stack;
         } else {
             // search for known stack with this name
             if (this.managedStackList && this.managedStackList.size > 0) {
-                stack = this.managedStackList.get(stackName);
+                stackNode = Stack.findStackFromTree(stackName, this.managedStackList);
+                stack = stackNode?.stack;
             }
-            if (!this.managedStackList || !stack) {
+            if (!this.managedStackList || !stackNode) {
                 stack = new Stack(server, stackName, undefined, undefined, true);
                 stack._status = UNKNOWN;
                 stack._configFilePath = path.resolve(server.stacksDir, stackName);
             }
         }
-        return stack;
+        return stack!;
     }
 
     async start(socket: DockgeSocket) {

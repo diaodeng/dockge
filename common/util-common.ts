@@ -465,3 +465,4 @@ export const isTablet = () => {
 export const isDesktop = () => {
     return getDeviceType() === "desktop";
 };
+
