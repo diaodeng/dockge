@@ -64,6 +64,7 @@ export default {
             return this.$root.endpointDisplayFunction(this.stack.endpoint);
         },
         url() {
+            console.log("url", this.stack);
             if (this.stack.endpoint) {
                 return `/compose/${this.stack.name}/${this.stack.endpoint}`;
             } else {

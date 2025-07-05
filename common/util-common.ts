@@ -125,6 +125,8 @@ export const acceptedComposeFileNamePattern = new RegExp(
         .join("|")
 );
 
+export const LOCALHOST_ENDPOINT = "localhost";
+
 /**
  * Generate a decimal integer number from a string
  * @param str Input
@@ -206,6 +208,10 @@ export function getCryptoRandomInt(min: number, max: number):number {
     } else {
         return getCryptoRandomInt(min, max);
     }
+}
+
+export function pathAsId(pathString : string) {
+    return pathString.replace(/[^a-zA-Z0-9_-]/g, "").toLowerCase();
 }
 
 export function getComposeTerminalName(endpoint : string, stack : string) {

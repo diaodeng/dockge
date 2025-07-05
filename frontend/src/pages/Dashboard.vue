@@ -15,7 +15,7 @@
                     <router-link to="/compose" class="btn btn-primary mb-3"><font-awesome-icon icon="plus" /> {{ $t("compose") }}</router-link>
                 </div>
 <!--                <StackList :scrollbar="true" />-->
-                <StackTree :scrollbar="true" />
+                <StackTree :scrollbar="true" v-model:tree-data="$root.allAgentStackList" />
             </div>
 
             <div ref="container" class="col-12 col-xl-9 mb-3">
@@ -28,12 +28,12 @@
 
 <script>
 
-import StackList from "../components/StackList.vue";
+// import StackList from "../components/StackList.vue";
 import StackTree from "../components/StackTree.vue";
 
 export default {
     components: {
-        StackList,
+        // StackList,
         StackTree,
     },
     data() {

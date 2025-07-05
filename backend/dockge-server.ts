@@ -621,14 +621,14 @@ export class DockgeServer {
 
                 // let map : Map<string, object> = new Map();
                 //
-                // for (let [ stackName, stackNode ] of stackList) {
+                // for (let [ nodKey, nodeValue ] of stackList) {
                 //     map.set(dockgeSocket.endpoint, stackNode.toJson(dockgeSocket.endpoint));
                 // }
 
                 log.debug("server", "Send stack list to user: " + dockgeSocket.id + " (" + dockgeSocket.endpoint + ")");
                 dockgeSocket.emitAgent("stackList", {
                     ok: true,
-                    stackList: stackList.toJson(dockgeSocket.endpoint),
+                    stackList: await stackList.toJson(dockgeSocket.endpoint),
                 });
             }
         }

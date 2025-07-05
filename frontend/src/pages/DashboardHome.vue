@@ -290,7 +290,14 @@ export default {
                     let endpoint = urlObj.host;
 
                     // Remove the stack list and status list of the removed agent
-                    delete this.$root.allAgentStackList[endpoint];
+                    // delete this.$root.allAgentStackList[endpoint];
+                    
+                    for (let i = 0; i < this.$root.allAgentStackList.length; i++) {
+                      if (this.$root.allAgentStackList[i].stack.endpoint === endpoint) {
+                        this.$root.allAgentStackList.splice(i, 1);
+                        break; // 找到后立即终止循环
+                      }
+                    }
                 }
             });
         },

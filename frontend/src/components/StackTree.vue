@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import {ref, computed} from "vue";
 import StackTreeItem from "./StackTreeItem.vue";
+import { StackNode } from "../interface/stack";
+import { StackNodeType } from "../../../common/enums";
+import { StackNode as StackNodeModel } from "../interface/stack";
 
 const props = defineProps({
     scrollbar: Boolean,
 });
-const treeData = ref({
+const treeData = defineModel<StackNode|StackNode[]>("treeData", {required: true});
+const treeData111 = ref({
     nodeName: "192.168.100.33",
     nodeType: "folder",
     children: [
@@ -117,6 +121,7 @@ const treeData = ref({
     ]
 });
 
+
 const search = ref("");
 
 const filteredTree = computed(() =>
@@ -129,12 +134,12 @@ const filteredTree = computed(() =>
  * @param {string} keyword 过滤关键词
  * @returns {Array|Object|null} 返回过滤后的新树结构
  */
-function filterTree(tree, keyword) {
+function filterTree(tree : StackNode|StackNode[], keyword) {
     if (!keyword) {
         return tree;
     }
 
-    const filter = (node) => {
+    const filter = (node: StackNode) => {
         if (!node) {
             return null;
         }
@@ -166,7 +171,7 @@ function filterTree(tree, keyword) {
 }
 
 function findStack(node, targetName) {
-    if (node.nodeType === "stack" && node.nodeName === targetName) {
+    if (node.nodeType !== StackNodeType.FOLDER && node.nodeName === targetName) {
         return node;
     }
 
@@ -200,8 +205,8 @@ const style = computed(() => {
 <template>
     <div :class="{ scrollbar: scrollbar }" class="shadow-box" :style="style">
         <input v-model="search" />
-        <ul>
-            <StackTreeItem :model="filteredTree" class="item"></StackTreeItem>
+        <ul v-for="node in filteredTree" class="ps-0">
+            <StackTreeItem :stack-node="node" class="item"></StackTreeItem>
         </ul>
     </div>
 </template>

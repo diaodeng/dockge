@@ -488,10 +488,11 @@ export default {
         },
 
         url() {
+            const relativePath = this.stack?.composeFileRelativePath;
             if (this.stack.endpoint) {
-                return `/compose/${this.stack.name}/${this.stack.endpoint}`;
+                return `/compose/${this.stack.name}/${this.stack.endpoint}?stackPath=${relativePath}`;
             } else {
-                return `/compose/${this.stack.name}`;
+                return `/compose/${this.stack.name}?stackPath=${relativePath}`;
             }
         },
     },
@@ -573,6 +574,7 @@ export default {
 
         } else {
             this.stack.name = this.$route.params.stackName;
+            this.stack.composeFileRelativePath = this.$route.query.stackPath || "";
             this.loadStack();
         }
 
@@ -663,7 +665,7 @@ export default {
 
         loadStack() {
             this.processing = true;
-            this.$root.emitAgent(this.endpoint, "getStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "getStack", this.stack.composeFileRelativePath, (res) => {
                 if (res.ok) {
                     this.stack = res.stack;
                     this.yamlCodeChange();

@@ -23,7 +23,8 @@ export default defineConfig({
     },
     plugins: [
         AutoImport({
-            imports: [ "vue" ],
+            imports: [ "vue", "vue-router", "vue/macros" ],
+            vueTemplate: true,
             dts: "src/auto-imports.d.ts",
             eslintrc: {
                 enabled: true,
