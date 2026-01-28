@@ -19,7 +19,7 @@ FROM node:22 AS build_frontend
 WORKDIR /
 COPY ./package*.json ./
 COPY . .
-RUN npm ci --registry=https://registry.npmmirror.com
+RUN npm install --registry=https://registry.npmmirror.com
 RUN npm run build:frontend
 
 ############################################
@@ -29,7 +29,7 @@ FROM louislam/dockge:base AS release
 WORKDIR /app
 COPY --chown=node:node --from=build_healthcheck /app/extra/healthcheck /app/extra/healthcheck
 COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build_frontend /frontend-dist /frontend-dist
+COPY --from=build_frontend /frontend-dist /app/frontend-dist
 COPY --chown=node:node  . .
 RUN mkdir ./data
 
