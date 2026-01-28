@@ -71,7 +71,6 @@ export default defineComponent({
                     list[stackName + "_" + endpoint] = instance.stackList[stackName];
                 }
             }
-            console.log(list)
             return list;
         },
 
