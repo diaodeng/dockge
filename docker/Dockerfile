@@ -16,7 +16,7 @@ RUN npm ci --omit=dev --registry=https://registry.npmmirror.com
 # Build Frontend
 ############################################
 FROM node:22 AS build_frontend
-WORKDIR /frontend
+WORKDIR /
 COPY ./package*.json ./
 RUN npm ci --registry=https://registry.npmmirror.com
 RUN npm run build:frontend
