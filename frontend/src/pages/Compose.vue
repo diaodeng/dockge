@@ -454,7 +454,7 @@ export default {
          * @return {*}
          */
         globalStack() {
-            return this.$root.completeStackList[this.stack.name + "_" + this.endpoint];
+            return this.$root.completeStackList[this.retailStackName + "_" + this.endpoint];
         },
 
         status() {
@@ -487,8 +487,17 @@ export default {
             return this.stack.endpoint || this.$route.params.endpoint || "";
         },
 
+        retailStackName(){
+            if (this.stack.composeFileRelativePath){
+                return this.stack.composeFileRelativePath;
+            }else {
+                return this.stack.name;
+            }
+            
+        },
+        
         url() {
-            const relativePath = this.stack?.composeFileRelativePath;
+            const relativePath = this.retailStackName;
             if (this.stack.endpoint) {
                 return `/compose/${this.stack.name}/${this.stack.endpoint}?stackPath=${relativePath}`;
             } else {
@@ -605,7 +614,7 @@ export default {
                 return;
             }
 
-            this.$root.emitAgent(this.endpoint, "serviceStatusList", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "serviceStatusList", this.retailStackName, (res) => {
                 if (res.ok) {
                     let resData = res.serviceStatusList;
                     for (const key in resData) {  // 兼容老版本数据结构
@@ -655,8 +664,8 @@ export default {
             clearTimeout(dockerStatsTimeout);
 
             // Leave Combined Terminal
-            console.debug("leaveCombinedTerminal", this.endpoint, this.stack.name);
-            this.$root.emitAgent(this.endpoint, "leaveCombinedTerminal", this.stack.name, () => {});
+            console.debug("leaveCombinedTerminal", this.endpoint, this.retailStackName);
+            this.$root.emitAgent(this.endpoint, "leaveCombinedTerminal", this.retailStackName, () => {});
         },
 
         bindTerminal() {
@@ -665,7 +674,7 @@ export default {
 
         loadStack() {
             this.processing = true;
-            this.$root.emitAgent(this.endpoint, "getStack", this.stack.composeFileRelativePath, (res) => {
+            this.$root.emitAgent(this.endpoint, "getStack", this.retailStackName, (res) => {
                 if (res.ok) {
                     this.stack = res.stack;
                     this.yamlCodeChange();
@@ -682,7 +691,7 @@ export default {
             this.bindTerminal();
 
             if (this.stack.isGitRepo) {
-                this.$root.emitAgent(this.stack.endpoint, "gitDeployStack", this.stack.name, this.stack.gitUrl, this.stack.branch, this.isAdd, (res) => {
+                this.$root.emitAgent(this.stack.endpoint, "gitDeployStack", this.retailStackName, this.stack.gitUrl, this.stack.branch, this.isAdd, (res) => {
                     this.processing = false;
                     this.$root.toastRes(res);
 
@@ -721,7 +730,7 @@ export default {
                     }
                 }
 
-                this.$root.emitAgent(this.stack.endpoint, "deployStack", this.stack.name, this.stack.composeYAML, this.stack.composeENV, this.isAdd, (res) => {
+                this.$root.emitAgent(this.stack.endpoint, "deployStack", this.retailStackName, this.stack.composeYAML, this.stack.composeENV, this.isAdd, (res) => {
                     this.processing = false;
                     this.$root.toastRes(res);
 
@@ -737,7 +746,14 @@ export default {
         saveStack() {
             this.processing = true;
 
-            this.$root.emitAgent(this.stack.endpoint, "saveStack", this.stack.composeFileRelativePath, this.stack.composeYAML, this.stack.composeENV, this.isAdd, (res) => {
+            this.$root.emitAgent(
+                this.stack.endpoint, 
+                "saveStack", 
+                this.retailStackName, 
+                this.stack.composeYAML, 
+                this.stack.composeENV, 
+                this.isAdd, 
+                (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 
@@ -751,7 +767,7 @@ export default {
         startStack() {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "startStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "startStack", this.retailStackName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
             });
@@ -760,7 +776,7 @@ export default {
         stopStack() {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "stopStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "stopStack", this.retailStackName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
             });
@@ -769,7 +785,7 @@ export default {
         downStack() {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "downStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "downStack", this.retailStackName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
             });
@@ -778,7 +794,7 @@ export default {
         restartStack() {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "restartStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "restartStack", this.retailStackName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
             });
@@ -787,7 +803,7 @@ export default {
         updateStack() {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "updateStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "updateStack", this.retailStackName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
             });
@@ -796,14 +812,14 @@ export default {
         gitSync() {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "gitSync", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "gitSync", this.retailStackName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
             });
         },
 
         deleteDialog() {
-            this.$root.emitAgent(this.endpoint, "deleteStack", this.stack.name, (res) => {
+            this.$root.emitAgent(this.endpoint, "deleteStack", this.retailStackName, (res) => {
                 this.$root.toastRes(res);
                 if (res.ok) {
                     this.$router.push("/");
@@ -959,7 +975,7 @@ export default {
         startService(serviceName) {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "startService", this.stack.name, serviceName, (res) => {
+            this.$root.emitAgent(this.endpoint, "startService", this.retailStackName, serviceName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 
@@ -972,7 +988,7 @@ export default {
         stopService(serviceName) {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "stopService", this.stack.name, serviceName, (res) => {
+            this.$root.emitAgent(this.endpoint, "stopService", this.retailStackName, serviceName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 
@@ -985,7 +1001,7 @@ export default {
         restartService(serviceName) {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "restartService", this.stack.name, serviceName, (res) => {
+            this.$root.emitAgent(this.endpoint, "restartService", this.retailStackName, serviceName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 
@@ -997,7 +1013,7 @@ export default {
         downService(serviceName) {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "downService", this.stack.name, serviceName, (res) => {
+            this.$root.emitAgent(this.endpoint, "downService", this.retailStackName, serviceName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 
@@ -1009,7 +1025,7 @@ export default {
         updateService(serviceName) {
             this.processing = true;
 
-            this.$root.emitAgent(this.endpoint, "updateService", this.stack.name, serviceName, (res) => {
+            this.$root.emitAgent(this.endpoint, "updateService", this.retailStackName, serviceName, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
 

@@ -40,7 +40,7 @@ export default defineComponent({
             stackList: {} as StackNode,
 
             // All stack list from all agents
-            allAgentStackList: [] as StackNode[],
+            allAgentStackList: Map<string, StackNode[]>,
 
             // online / offline / connecting
             agentStatusList: {},
@@ -56,21 +56,19 @@ export default defineComponent({
         },
 
         completeStackList() {
+            debugger
             let list: Record<string, object> = {};
-
-            for (let stackName in this.stackList) {
-                list[stackName + "_"] = this.stackList[stackName];
-            }
-
-            for (let endpoint in this.allAgentStackList) {
-                if (this.agentStatusList[endpoint] === "disabled" || !(endpoint in this.agentList)) {
-                    continue;
+            if (!this.allAgentStackList || this.allAgentStackList.size === 0){return list};
+            this.allAgentStackList.forEach((endpoint, stackNodes)=>{
+                if (endpoint !== -1 && (this.agentStatusList[endpoint] === "disabled" || !(endpoint in this.agentList))) {
+                    return;
                 }
-                let instance = this.allAgentStackList[endpoint];
-                for (let stackName in instance.stackList) {
-                    list[stackName + "_" + endpoint] = instance.stackList[stackName];
+
+                for (let stackNode in stackNodes) {
+                    list[stackNode.stack.composeFileRelativePath + "_" + endpoint] = stackNode;
                 }
-            }
+            });
+
             return list;
         },
 
@@ -259,37 +257,13 @@ export default defineComponent({
 
             agentSocket.on("stackList", (response) => {
                 const res = response as StackListResponse;
+                debugger
+                console.log("获取stackList")
                 if (res.ok) {
-                    if (this.allAgentStackList.length === 0) {
-                        this.allAgentStackList.push(res.stackList);
-                    } else {
-                        let foundIndex = -1;
-                        for (let i = 0; i < this.allAgentStackList.length; i++) {
-                            if (this.allAgentStackList[i].endpoint === res.stackList.endpoint) {
-                                // this.allAgentStackList[i] = res.stackList;
-                                foundIndex = i;
-
-                                break; // 找到后立即终止循环
-                            }
-                        }
-                        if (foundIndex === -1) {
-                            this.allAgentStackList.push(res.stackList);
-                        }else {
-                            this.allAgentStackList[foundIndex] = res.stackList;
-                            // this.$set(this.allAgentStackList, foundIndex, res.stackList);
-                        }
+                    if (res.stackList){
+                        this.allAgentStackList.set(res.stackList.endpoint, res.stackList);
+                        console.log(this.allAgentStackList)
                     }
-
-
-                    // if (!res.endpoint) {
-                    //     this.stackList = res.stackList;
-                    //     this.allAgentStackList[LOCALHOST_ENDPOINT] = res.stackList;
-                    // } else {
-                    //     if (!this.allAgentStackList[res.endpoint]) {
-                    //         this.allAgentStackList[res.endpoint] = res.stackList;
-                    //     }
-                    //     this.allAgentStackList[res.endpoint] = res.stackList;
-                    // }
                 }
             });
 
