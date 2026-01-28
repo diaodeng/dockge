@@ -9,7 +9,7 @@ import {
     isDesktop as deviceIsDesktop,
     LOCALHOST_ENDPOINT
 } from "../../../common/util-common";
-import type {StackListResponse, StackNode} from "../interface/stack";
+import type {StackListResponse, StackNode, StackListData} from "../interface/stack";
 
 let socket: Socket;
 
@@ -40,7 +40,7 @@ export default defineComponent({
             stackList: {} as StackNode,
 
             // All stack list from all agents
-            allAgentStackList: Map<string, StackNode[]>,
+            allAgentStackList: {} as StackListData,
 
             // online / offline / connecting
             agentStatusList: {},
@@ -58,15 +58,12 @@ export default defineComponent({
         completeStackList() {
             debugger
             let list: Record<string, object> = {};
-            if (!this.allAgentStackList || this.allAgentStackList.size === 0){return list};
-            this.allAgentStackList.forEach((endpoint, stackNodes)=>{
-                if (endpoint !== -1 && (this.agentStatusList[endpoint] === "disabled" || !(endpoint in this.agentList))) {
+            if (!this.allAgentStackList || Object.keys(this.allAgentStackList).length === 0){return list};
+            Object.entries(this.allAgentStackList as Record<string, StackNode>).forEach(([endpoint, stackNode])=>{
+                if (this.agentStatusList[endpoint] === "disabled" || !(endpoint in this.agentList)) {
                     return;
                 }
-
-                for (let stackNode in stackNodes) {
-                    list[stackNode.stack.composeFileRelativePath + "_" + endpoint] = stackNode;
-                }
+                this.expantStackNodes(endpoint, stackNode, list);
             });
 
             return list;
@@ -138,6 +135,16 @@ export default defineComponent({
 
     },
     methods: {
+        expantStackNodes(endpoint: string, stackNode: StackNode, dataList: object){
+            if (stackNode.stack){
+                dataList[stackNode.stack.composeFileRelativePath + "_" + endpoint] = stackNode;
+            }
+            for (let cStackNode of stackNode.children) {
+
+                    this.expantStackNodes(endpoint, cStackNode, dataList);
+                }
+        },
+
 
         endpointDisplayFunction(endpoint: string) {
             if (endpoint) {
@@ -261,8 +268,7 @@ export default defineComponent({
                 console.log("获取stackList")
                 if (res.ok) {
                     if (res.stackList){
-                        this.allAgentStackList.set(res.stackList.endpoint, res.stackList);
-                        console.log(this.allAgentStackList)
+                        this.allAgentStackList[res.stackList.endpoint] = res.stackList;
                     }
                 }
             });

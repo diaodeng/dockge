@@ -88,7 +88,12 @@ function addChild() {
             <input type="checkbox" value="" class="me-2" @click.stop v-if="false">
             <font-awesome-icon v-if="isFolder && false" icon="folder"/>
             <Uptime v-if="isStack" :stack="stackNode.stack" :fixed-width="true" class="me-2"/>
-            <span v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</span>
+<!--            <span v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</span>-->
+            <template v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</template>
+            <template>
+                <span v-if="stackNode.endpoint === ''">{{ $t("currentEndpoint") }}</span>
+                <span v-else>{{ ($root.agentList[stackNode.endpoint]["name"] === "" || $root.agentList[stackNode.endpoint]["name"] === null) ? stackNode.endpoint : $root.agentList[stackNode.endpoint]["name"] }}</span>
+            </template>
             <font-awesome-icon v-if="isFolder" @click.prevent="toggle"
                                :icon="isOpen ? 'chevron-circle-down' : 'chevron-circle-right'"/>
             <font-awesome-icon v-if="!isStack" icon="plus" class="ms-2" @click.stop="addChild"/>

@@ -3,7 +3,7 @@
         <div>
             <h1 v-if="isAdd" class="mb-3">{{ $t("compose") }}</h1>
             <h1 v-else class="mb-3">
-                <Uptime :stack="globalStack" :pill="true" /> {{ stack.name }}
+                <Uptime :stack="stack" :pill="true" /> {{ stack.name }} {{stack.status}}
                 <span class="d-flex flex-column">
                     <span v-if="$root.agentCount > 1" class="agent-name">
                         ({{ endpointDisplay }})
@@ -352,6 +352,7 @@ import {
 import { BModal } from "bootstrap-vue-next";
 import NetworkInput from "../components/NetworkInput.vue";
 import dotenv from "dotenv";
+import Uptime from "../components/Uptime.vue";
 
 const template = `
 services:
@@ -375,6 +376,7 @@ let prismjsSymbolDefinition = {
 
 export default {
     components: {
+        Uptime,
         FullscreenContainer,
         NetworkInput,
         FontAwesomeIcon,

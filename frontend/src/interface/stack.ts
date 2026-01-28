@@ -31,3 +31,8 @@ export interface StackListResponse {
 interface StackList {
     [endpoint: string]: StackNode[];
 }
+
+
+export interface StackListData {
+  [endpoint: string]: StackNode;
+}
