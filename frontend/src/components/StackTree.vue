@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import {ref, computed} from "vue";
 import StackTreeItem from "./StackTreeItem.vue";
-import { StackNode } from "../interface/stack";
-import { StackNodeType } from "../../../common/enums";
-import { StackNode as StackNodeModel } from "../interface/stack";
+import {StackNode} from "../interface/stack";
+import {StackNodeType} from "../../../common/enums";
+import {StackNode as StackNodeModel} from "../interface/stack";
 
 const props = defineProps({
     scrollbar: Boolean,
 });
-const treeData = defineModel<StackNode|StackNode[]>("treeData", {required: true});
+const treeData = defineModel<StackNode | StackNode[]>("treeData", {required: true});
 const treeData111 = ref({
     nodeName: "192.168.100.33",
     nodeType: "folder",
@@ -122,10 +122,13 @@ const treeData111 = ref({
 });
 
 
-const search = ref("");
+const searchText = ref("");
+const selectMode = ref(true);
 
-const filteredTree = computed(() =>
-    filterTree(treeData.value, search.value)
+const filteredTree = computed(() =>{
+    return filterTree(treeData.value, searchText.value)
+    }
+    
 );
 
 /**
@@ -134,7 +137,7 @@ const filteredTree = computed(() =>
  * @param {string} keyword 过滤关键词
  * @returns {Array|Object|null} 返回过滤后的新树结构
  */
-function filterTree(tree : StackNode|StackNode[], keyword) {
+function filterTree(tree: StackNode | StackNode[], keyword) {
     if (!keyword) {
         return tree;
     }
@@ -159,7 +162,7 @@ function filterTree(tree : StackNode|StackNode[], keyword) {
             }
         }
 
-        return matched ? { ...node } : null;
+        return matched ? {...node} : null;
     };
 
     // 支持根是数组或对象
@@ -187,7 +190,7 @@ function findStack(node, targetName) {
     return null;
 }
 
-const style = computed(() => {
+const boxStyle = computed(() => {
     if (window.innerWidth > 550) {
         return {
             height: "calc(100vh - 160px + 10px)",
@@ -200,18 +203,53 @@ const style = computed(() => {
 
 });
 
+const stackListStyle = computed(() => {
+            //let listHeaderHeight = 107;
+            let listHeaderHeight = 60;
+            if (selectMode) {
+                listHeaderHeight += 42;
+            }
+            return {
+                "height": `calc(100% - ${listHeaderHeight}px)`
+            };
+        })
+
+function clearSearchText(evt: Event) {
+    searchText.value = "";
+}
+
 </script>
 
 <template>
-    <div :class="{ scrollbar: scrollbar }" class="shadow-box" :style="style">
-        <input v-model="search" />
-        <ul v-for="node in filteredTree" class="ps-0">
-            <StackTreeItem :stack-node="node" class="item"></StackTreeItem>
-        </ul>
+    <div class="shadow-box mb-3" :style="boxStyle">
+        <div class="list-header">
+            <div class="header-top">
+                <div class="placeholder" v-if="false"></div>
+                <div class="search-wrapper" style="flex-grow: 1">
+                    <a v-if="searchText === ''" class="search-icon">
+                        <font-awesome-icon icon="search"/>
+                    </a>
+                    <a v-if="searchText !== ''" class="search-icon" style="cursor: pointer" @click="clearSearchText">
+                        <font-awesome-icon icon="times"/>
+                    </a>
+                    <form style="flex-grow: 1">
+                        <input v-model="searchText" class="form-control search-input" autocomplete="off"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div :class="{ scrollbar: scrollbar }" :style="stackListStyle">
+            <ul v-for="node in filteredTree" class="ps-0">
+                <StackTreeItem :stack-node="node" class="item"></StackTreeItem>
+            </ul>
+        </div>
+
     </div>
 </template>
 
-<style>
+<style lang="scss" scoped>
+@import "../styles/vars.scss";
+
 .item {
     cursor: pointer;
     line-height: 1.5;
@@ -220,7 +258,110 @@ const style = computed(() => {
 .bold {
     font-weight: bold;
 }
+
 ul {
     list-style-type: none;
+}
+
+.shadow-box {
+    height: calc(100vh - 150px);
+    position: sticky;
+    top: 10px;
+}
+
+.small-padding {
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
+
+.list-header {
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0;
+    margin: -10px;
+    margin-bottom: 10px;
+    padding: 10px;
+
+    .dark & {
+        background-color: $dark-header-bg;
+        border-bottom: 0;
+    }
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-filter {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 770px) {
+    .list-header {
+        margin: -20px;
+        margin-bottom: 10px;
+        padding: 5px;
+    }
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    padding: 10px;
+    color: #c0c0c0;
+    
+    svg[data-icon="times"] {
+        cursor: pointer;
+        transition: all ease-in-out 0.1s;
+
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+}
+
+.search-input {
+    max-width: 15em;
+}
+
+.stack-item {
+    width: 100%;
+}
+
+.tags {
+    margin-top: 4px;
+    padding-left: 67px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+}
+
+.bottom-style {
+    padding-left: 67px;
+    margin-top: 5px;
+}
+
+.selection-controls {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.agent-select {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: $dark-font-color3;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+    user-select: none;
 }
 </style>

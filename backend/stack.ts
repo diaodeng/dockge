@@ -380,6 +380,7 @@ export class Stack {
 
         // Use cached stack list?
         if (useCacheForManaged && this.managedStackList && this.managedStackList.children.size > 0) {
+            console.log("使用缓存", this.managedStackList.children)
             return this.managedStackList;
         }
 
@@ -430,6 +431,8 @@ export class Stack {
                 // 将项目添加到目录树
                 let currentNode = Stack.__findStockNodeFromTree(stackRelativePath, directoryRootTree, true);
                 if (Object.keys(currentNode!.children).length > 0) {
+                    console.log("stack.getStackList", currentNode.children);
+                    console.log(currentNode)
                     currentNode!.nodeType = stackNodeType.STACK_AND_FOLDER;
                 } else {
                     currentNode!.nodeType = stackNodeType.STACK;
@@ -475,8 +478,12 @@ export class Stack {
                 stack._status = CREATED_FILE;
                 stack._configFilePath = configFilePath;
                 stack._composeFileName = configFilename;
-
+                log.info("测试消息来一波", stack.name)
+                log.info("测试消息来一波", Object.keys(currentNode!.children))
+                log.info("测试消息来一波", currentNode?.children)
                 if (Object.keys(currentNode!.children).length > 0) {
+                    console.log("stack.getStackList2", currentNode.children);
+                    console.log(currentNode)
                     currentNode!.nodeType = stackNodeType.STACK_AND_FOLDER;
                 } else {
                     currentNode!.nodeType = stackNodeType.STACK;

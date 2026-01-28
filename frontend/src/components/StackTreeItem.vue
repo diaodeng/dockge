@@ -13,7 +13,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const isOpen = ref(true);
+const isOpen = ref(false);
 const isFolder = computed(() => {
     return props.stackNode.nodeType === StackNodeType.FOLDER || props.stackNode.nodeType === StackNodeType.STACK_AND_FOLDER || props.stackNode.nodeType === StackNodeType.ROOT;
     // return props.model.children && props.model.children.length;
@@ -43,6 +43,8 @@ function gotoUrl() {
     console.log("gotoUrl", url.value);
     if (isStack.value) {
         router.push(url.value);
+    }else {
+        toggle();
     }
 }
 
@@ -83,8 +85,8 @@ function addChild() {
             @click.self="gotoUrl"
             @dblclick.stop="showStackDetail"
         >
-            <input type="checkbox" value="" class="me-2" @click.stop>
-            <font-awesome-icon v-if="isFolder" icon="folder"/>
+            <input type="checkbox" value="" class="me-2" @click.stop v-if="false">
+            <font-awesome-icon v-if="isFolder && false" icon="folder"/>
             <Uptime v-if="isStack" :stack="stackNode.stack" :fixed-width="true" class="me-2"/>
             {{ stackNode.nodeName }}
             <font-awesome-icon v-if="isFolder" @click.prevent="toggle"
@@ -93,7 +95,7 @@ function addChild() {
             <a class="rounded" v-if="isStack">
                 <font-awesome-icon :icon="stackNode?.stack?.isGitRepo ? 'code-branch' : 'file'" class="fa-fw"/>
             </a>
-            <a class="bg-white rounded" v-if="isStack">
+            <a class="bg-white rounded" v-if="false">
                 <font-awesome-icon icon="ellipsis-vertical" class="fa-fw" @click.prevent/>
             </a>
         </div>
@@ -111,6 +113,10 @@ function addChild() {
 
 <style lang="scss" scoped>
 @import "../styles/vars.scss";
+
+ul {
+    list-style-type: none;
+}
 
 .dim {
     opacity: 0.5;
