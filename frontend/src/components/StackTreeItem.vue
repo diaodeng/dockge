@@ -91,8 +91,10 @@ function addChild() {
 <!--            <span v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</span>-->
             <template v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</template>
             <template>
-                <span v-if="stackNode.endpoint === ''">{{ $t("currentEndpoint") }}</span>
-                <span v-else>{{ ($root.agentList[stackNode.endpoint]["name"] === "" || $root.agentList[stackNode.endpoint]["name"] === null) ? stackNode.endpoint : $root.agentList[stackNode.endpoint]["name"] }}</span>
+                
+                {{stackNode.endpoint}}
+<!--                <span v-if="stackNode.endpoint === ''">{{ $t("currentEndpoint") }}</span>-->
+                <span>{{ ($root.agentList[stackNode.endpoint]["name"] === "" || $root.agentList[stackNode.endpoint]["name"] === null) ? stackNode.endpoint : $root.agentList[stackNode.endpoint]["name"] }}</span>
             </template>
             <font-awesome-icon v-if="isFolder" @click.prevent="toggle"
                                :icon="isOpen ? 'chevron-circle-down' : 'chevron-circle-right'"/>

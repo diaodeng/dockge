@@ -8,7 +8,7 @@ import {StackNode as StackNodeModel} from "../interface/stack";
 const props = defineProps({
     scrollbar: Boolean,
 });
-const treeData = defineModel<StackNode | StackNode[]>("treeData", {required: true});
+const treeData = defineModel< Record<string, StackNode>>("treeData", {required: true});
 
 
 const searchText = ref("");
@@ -26,7 +26,7 @@ const filteredTree = computed(() =>{
  * @param {string} keyword 过滤关键词
  * @returns {Array|Object|null} 返回过滤后的新树结构
  */
-function filterTree(tree: StackNode | StackNode[], keyword) {
+function filterTree(tree: Record<string, StackNode>, keyword) {
     if (!keyword) {
         return tree;
     }
@@ -53,13 +53,13 @@ function filterTree(tree: StackNode | StackNode[], keyword) {
 
         return matched ? {...node} : null;
     };
+    
+    let new_data = {}
+    Object.entries(tree).forEach(([endpoint, stackNode]) => {
+        new_data[endpoint] = filter(stackNode);
+    });
+    return new_data;
 
-    // 支持根是数组或对象
-    if (Array.isArray(tree)) {
-        return tree.map(filter).filter(Boolean);
-    } else {
-        return filter(tree);
-    }
 }
 
 function findStack(node, targetName) {
