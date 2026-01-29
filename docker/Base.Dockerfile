@@ -13,6 +13,13 @@ RUN apt update && apt install --yes --no-install-recommends \
     dumb-init \
     && install -m 0755 -d /etc/apt/keyrings
 
+# 安装编译依赖
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 # 使用 Docker 国内镜像仓库（阿里云）
 RUN curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     chmod a+r /etc/apt/keyrings/docker.gpg && \
