@@ -38,6 +38,7 @@ import { AgentSocketHandler } from "./agent-socket-handler";
 import { AgentSocket } from "../common/agent-socket";
 import { ManageAgentSocketHandler } from "./socket-handlers/manage-agent-socket-handler";
 import { Terminal } from "./terminal";
+import {StackNodeType} from "../common/enums";
 
 const GIT_UPDATE_CHECKER_INTERVAL_MS = 1000 * 60 * 10;
 
@@ -618,16 +619,16 @@ export class DockgeServer {
                     stackList = await Stack.getStackList(this, useCache);
                 }
 
-                let map : Map<string, object> = new Map();
-
-                for (let [ stackName, stack ] of stackList) {
-                    map.set(stackName, stack.toSimpleJSON(dockgeSocket.endpoint));
-                }
+                // let map : Map<string, object> = new Map();
+                //
+                // for (let [ nodKey, nodeValue ] of stackList) {
+                //     map.set(dockgeSocket.endpoint, stackNode.toJson(dockgeSocket.endpoint));
+                // }
 
                 log.debug("server", "Send stack list to user: " + dockgeSocket.id + " (" + dockgeSocket.endpoint + ")");
                 dockgeSocket.emitAgent("stackList", {
                     ok: true,
-                    stackList: Object.fromEntries(map),
+                    stackList: await stackList.toJson(dockgeSocket.endpoint),
                 });
             }
         }
@@ -656,13 +657,13 @@ export class DockgeServer {
                     stackList = await Stack.getStackList(this, useCache);
                 }
 
-                for (let [ stackName, stack ] of stackList) {
+                for (let [ stackName, stackNode ] of stackList) {
 
-                    if (stack.isGitRepo) {
-                        stack.checkRemoteChanges().then(async (outdated) => {
+                    if (stackNode.stack!.isGitRepo) {
+                        stackNode.stack!.checkRemoteChanges().then(async (outdated) => {
                             if (outdated) {
                                 log.info("git-updater", `Stack  ${this.config.hostname}:${this.config.port} ${stackName} is outdated, Updating...`);
-                                await stack.update(dockgeSocket);
+                                await stackNode.stack!.update(dockgeSocket);
                             }
                         });
                     }
@@ -713,6 +714,64 @@ export class DockgeServer {
                 try {
                     let obj = JSON.parse(line);
                     stats.set(obj.Name, obj);
+                } catch (e) {
+                }
+            }
+
+            return stats;
+        } catch (e) {
+            log.error("getDockerStats", e);
+            return stats;
+        }
+    }
+
+    async getDockerPs() : Promise<Map<string, object>> {
+        let stats = new Map<string, object>();
+
+        try {
+            let res = await childProcessAsync.spawn("docker", [ "ps", "-a", "--format", "json" ], {
+                encoding: "utf-8",
+            });
+
+            if (!res.stdout) {
+                return stats;
+            }
+
+            let lines = res.stdout?.toString().split("\n");
+
+            for (let line of lines) {
+                try {
+                    let obj = JSON.parse(line);
+                    stats.set(obj.Names, obj);
+                } catch (e) {
+                }
+            }
+
+            return stats;
+        } catch (e) {
+            log.error("getDockerStats", e);
+            return stats;
+        }
+    }
+
+    async getLocalImages() : Promise<Map<string, object>> {
+        let stats = new Map<string, object>();
+
+        try {
+            let res = await childProcessAsync.spawn("docker", [ "images", "--format", "json" ], {
+                encoding: "utf-8",
+            });
+
+            if (!res.stdout) {
+                return stats;
+            }
+
+            let lines = res.stdout?.toString().split("\n");
+
+            for (let line of lines) {
+                try {
+                    let obj = JSON.parse(line);
+                    stats.set(obj.Names, obj);
                 } catch (e) {
                 }
             }

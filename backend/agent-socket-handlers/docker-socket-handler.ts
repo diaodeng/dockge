@@ -481,10 +481,10 @@ export class DockerSocketHandler extends AgentSocketHandler {
         });
     }
 
-    async saveStack(server : DockgeServer, name : unknown, composeYAML : unknown, composeENV : unknown, isAdd : unknown) : Promise<Stack> {
+    async saveStack(server : DockgeServer, stackRelativePath : unknown, composeYAML : unknown, composeENV : unknown, isAdd : unknown) : Promise<Stack> {
         // Check types
-        if (typeof(name) !== "string") {
-            throw new ValidationError("Name must be a string");
+        if (typeof(stackRelativePath) !== "string") {
+            throw new ValidationError("stackRelativePath must be a string");
         }
         if (typeof(composeYAML) !== "string") {
             throw new ValidationError("Compose YAML must be a string");
@@ -496,7 +496,7 @@ export class DockerSocketHandler extends AgentSocketHandler {
             throw new ValidationError("isAdd must be a boolean");
         }
 
-        const stack = new Stack(server, name, composeYAML, composeENV, false);
+        const stack = new Stack(server, stackRelativePath, composeYAML, composeENV, false);
         await stack.save(isAdd);
         return stack;
     }

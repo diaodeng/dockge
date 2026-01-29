@@ -116,7 +116,6 @@
                     okVariant="danger"
                     :title="$t('pruneAllEndpointUnusedImages')"
                     @ok="pruneImages()">
-                <p>{{ endpoint }}</p>
                 {{ $t("pruneAllEndpointUnusedImagesMsg") }}
             </BModal>
             <div v-if="$root.socketIO.connecting" class="container mt-5">

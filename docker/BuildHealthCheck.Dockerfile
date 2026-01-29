@@ -1,7 +1,7 @@
 ############################################
 # Build in Golang
 ############################################
-FROM docker.xuanyuan.me/library/golang:1.21.4-bookworm
+FROM golang:1.21.4-bookworm
 WORKDIR /app
 ARG TARGETPLATFORM
 COPY ./extra/healthcheck.go ./extra/healthcheck.go

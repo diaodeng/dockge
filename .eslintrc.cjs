@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const autoGlobals = require("./.eslintrc-auto-import.json");
+
 module.exports = {
     root: true,
     env: {
@@ -15,11 +18,15 @@ module.exports = {
     },
     plugins: [
         "@typescript-eslint",
-        "jsdoc"
+        "jsdoc",
+        "vue"
     ],
+    globals: {
+        ...autoGlobals.globals
+    },
     rules: {
         "yoda": "error",
-        "linebreak-style": [ "error", "unix" ],
+        "linebreak-style": "off",
         "camelcase": [ "warn", {
             "properties": "never",
             "ignoreImports": true
@@ -35,7 +42,7 @@ module.exports = {
                 SwitchCase: 1,
             },
         ],
-        quotes: [ "error", "double" ],
+        quotes: ["off"],  // [ "error", "double" ],
         semi: "error",
         "vue/html-indent": [ "error", 4 ], // default: 2
         "vue/max-attributes-per-line": "off",
@@ -57,7 +64,7 @@ module.exports = {
             "named": "never",
             "asyncArrow": "always"
         }],
-        "curly": "error",
+        "curly": [ "error", "multi-line" ],  // 多行花括号检测
         "object-curly-spacing": [ "error", "always" ],
         "object-curly-newline": "off",
         "object-property-newline": "error",
@@ -95,6 +102,6 @@ module.exports = {
         "@typescript-eslint/no-unused-vars": [ "warn", {
             "args": "none"
         }],
-        "prefer-const" : "off",
+        "prefer-const": "off",
     },
 };

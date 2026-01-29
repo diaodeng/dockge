@@ -111,6 +111,8 @@
                                     :title="agent.url + '(' + agent.name + ')'"
                                     okVariant="info"
                                     @ok="updateName(agent.url, agent.name)">
+                                <label for="updatedName" class="form-label">{{ $t("Username") }}</label>
+                                <input id="updatedUserName" v-model="agent.username" type="text" class="form-control" disabled>
                                 <label for="updatedName" class="form-label">{{ $t("agentNameLabel") }}</label>
                                 <input id="updatedName" v-model="agent.name" type="text" class="form-control" optional>
                             </BModal>
@@ -290,7 +292,14 @@ export default {
                     let endpoint = urlObj.host;
 
                     // Remove the stack list and status list of the removed agent
-                    delete this.$root.allAgentStackList[endpoint];
+                    // delete this.$root.allAgentStackList[endpoint];
+                    
+                    for (let i = 0; i < this.$root.allAgentStackList.length; i++) {
+                      if (this.$root.allAgentStackList[i].stack.endpoint === endpoint) {
+                        this.$root.allAgentStackList.splice(i, 1);
+                        break; // 找到后立即终止循环
+                      }
+                    }
                 }
             });
         },
