@@ -27,21 +27,21 @@ const filteredTree = computed(() =>{
  * @returns {Array|Object|null} 返回过滤后的新树结构
  */
 function filterTree(tree: Record<string, StackNode>, keyword) {
-    if (!keyword) {
+    if (!keyword || Object.keys(tree).length === 0) {
         return tree;
     }
 
-    const filter = (node: StackNode) => {
+    const filterNode = (node: StackNode | null) : StackNode | null => {
         if (!node) {
             return null;
         }
         let matched = node.nodeName?.toLowerCase().includes(keyword.toLowerCase());
 
         // 如果有 children，递归过滤它们
-        if (node.children) {
+        if (node.children  && node.children.length > 0) {
             const filteredChildren = node.children
-                .map(filter)
-                .filter(Boolean); // 过滤掉空节点
+                .map(child => filterNode(child))
+                .filter((child): child is StackNode => child !== null); // 过滤掉空节点
 
             if (filteredChildren.length > 0 || matched) {
                 return {
@@ -54,12 +54,14 @@ function filterTree(tree: Record<string, StackNode>, keyword) {
         return matched ? {...node} : null;
     };
     
-    let new_data = {}
+    const result: Record<string, StackNode | null> = {};
     Object.entries(tree).forEach(([endpoint, stackNode]) => {
-        new_data[endpoint] = filter(stackNode);
+        const filteredNode = filterNode(stackNode);
+        if (filteredNode) {
+            result[endpoint] = filteredNode;
+        }
     });
-    return new_data;
-
+    return result;
 }
 
 function findStack(node, targetName) {
@@ -110,8 +112,8 @@ function clearSearchText(evt: Event) {
 </script>
 
 <template>
-    <div class="shadow-box mb-3" :style="boxStyle">
-        <div class="list-header">
+    <div class="shadow-box mb-3" :style="boxStyle" style="display: flex; flex-direction: column;">
+        <div class="list-header" style="flex: 0 0 auto;">
             <div class="header-top">
                 <div class="placeholder" v-if="false"></div>
                 <div class="search-wrapper" style="flex-grow: 1">
@@ -127,9 +129,9 @@ function clearSearchText(evt: Event) {
                 </div>
             </div>
         </div>
-        <div :class="{ scrollbar: scrollbar }" :style="stackListStyle">
-            <ul v-for="node in filteredTree" class="ps-0">
-                <StackTreeItem :stack-node="node" class="item"></StackTreeItem>
+        <div :class="{ scrollbar: scrollbar }" style="flex: 1 1 auto;min-height: 0; overflow-y: auto;overflow-x: hidden">
+            <ul v-for="(agentNodes, endpoint) in (filteredTree || {})" class="ps-0" :key="endpoint">
+                <StackTreeItem :stack-node="agentNodes" class="item"></StackTreeItem>
             </ul>
         </div>
 

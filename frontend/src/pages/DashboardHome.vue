@@ -111,6 +111,8 @@
                                     :title="agent.url + '(' + agent.name + ')'"
                                     okVariant="info"
                                     @ok="updateName(agent.url, agent.name)">
+                                <label for="updatedName" class="form-label">{{ $t("Username") }}</label>
+                                <input id="updatedUserName" v-model="agent.username" type="text" class="form-control" disabled>
                                 <label for="updatedName" class="form-label">{{ $t("agentNameLabel") }}</label>
                                 <input id="updatedName" v-model="agent.name" type="text" class="form-control" optional>
                             </BModal>

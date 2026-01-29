@@ -79,22 +79,22 @@ function addChild() {
 </script>
 
 <template>
-    <li>
+    <li v-if="stackNode && Object.keys(stackNode).length > 0">
         <div
             :class="{ bold: isFolder, 'dim' :!stackNode?.stack?.isManagedByDockge, 'item-name':isStack }"
             @click.self="gotoUrl"
-            @dblclick.stop="showStackDetail"
         >
             <input type="checkbox" value="" class="me-2" @click.stop v-if="false">
             <font-awesome-icon v-if="isFolder && false" icon="folder"/>
             <Uptime v-if="isStack" :stack="stackNode.stack" :fixed-width="true" class="me-2"/>
-<!--            <span v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</span>-->
             <template v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</template>
-            <template>
-                
-                {{stackNode.endpoint}}
-<!--                <span v-if="stackNode.endpoint === ''">{{ $t("currentEndpoint") }}</span>-->
-                <span>{{ ($root.agentList[stackNode.endpoint]["name"] === "" || $root.agentList[stackNode.endpoint]["name"] === null) ? stackNode.endpoint : $root.agentList[stackNode.endpoint]["name"] }}</span>
+            <template v-else>
+                <template v-if="stackNode.endpoint === ''">
+                    {{ $t("currentEndpoint") }}
+                </template>
+                <template v-else>
+                    {{ ($root.agentList[stackNode.endpoint]["name"] === "" || $root.agentList[stackNode.endpoint]["name"] === null) ? stackNode.endpoint : $root.agentList[stackNode.endpoint]["name"] }}
+                </template>
             </template>
             <font-awesome-icon v-if="isFolder" @click.prevent="toggle"
                                :icon="isOpen ? 'chevron-circle-down' : 'chevron-circle-right'"/>

@@ -46,7 +46,6 @@ onMounted(() => {
         // if (toggleEl) {
         //     new Dropdown(toggleEl);
         // }
-        console.log(dropdownElementList);
     });
 });
 </script>

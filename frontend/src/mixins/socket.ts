@@ -56,7 +56,6 @@ export default defineComponent({
         },
 
         completeStackList() {
-            debugger
             let list: Record<string, object> = {};
             if (!this.allAgentStackList || Object.keys(this.allAgentStackList).length === 0){return list};
             Object.entries(this.allAgentStackList as Record<string, StackNode>).forEach(([endpoint, stackNode])=>{
@@ -125,6 +124,7 @@ export default defineComponent({
         this.initSocketIO();
     },
     mounted() {
+        this.allAgentStackList = {};
         this.isDeskTop = deviceIsDesktop();
         this.isMobile = deviceIsMobile();
         onresize = () => {
@@ -264,11 +264,9 @@ export default defineComponent({
 
             agentSocket.on("stackList", (response) => {
                 const res = response as StackListResponse;
-                debugger
-                console.log("获取stackList")
                 if (res.ok) {
                     if (res.stackList){
-                        this.allAgentStackList[res.stackList.endpoint] = res.stackList;
+                        this.allAgentStackList[res.endpoint] = res.stackList;
                     }
                 }
             });
