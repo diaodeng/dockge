@@ -7,15 +7,24 @@ FROM louislam/dockge:build-healthcheck AS build_healthcheck
 # Build
 ############################################
 FROM louislam/dockge:base AS build
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list.d/debian.sources
+# 安装编译依赖
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY --chown=node:node  ./package.json ./package.json
 COPY --chown=node:node  ./package-lock.json ./package-lock.json
-RUN npm ci --omit=dev --registry=https://registry.npmmirror.com
+RUN npm ci --omit=dev --registry=https://registry.npmmirror.com && npm cache clean --force
 
 ############################################
 # Build Frontend
 ############################################
-FROM node:22 AS build_frontend
+FROM node:22-bookworm-slim AS build_frontend
 WORKDIR /
 COPY ./package*.json ./
 COPY . .
