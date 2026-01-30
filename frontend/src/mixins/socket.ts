@@ -265,7 +265,7 @@ export default defineComponent({
             agentSocket.on("stackList", (response) => {
                 const res = response as StackListResponse;
                 if (res.ok) {
-                    if (res.stackList){
+                    if (res.stackList as StackNode){
                         this.allAgentStackList[res.endpoint] = res.stackList;
                     }
                 }

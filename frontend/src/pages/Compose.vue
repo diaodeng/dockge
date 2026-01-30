@@ -460,7 +460,7 @@ export default {
         },
 
         status() {
-            return this.globalStack?.status;
+            return this.globalStack?.stack?.status;
         },
 
         active() {
