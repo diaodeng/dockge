@@ -86,6 +86,9 @@ function addChild() {
         >
             <input type="checkbox" value="" class="me-2" @click.stop v-if="false">
             <font-awesome-icon v-if="isFolder && false" icon="folder"/>
+            <font-awesome-icon v-if="isFolder" @click.prevent="toggle"
+                               :icon="isOpen ? 'chevron-circle-down' : 'chevron-circle-right'"/>
+            
             <Uptime v-if="isStack" :stack="stackNode.stack" :fixed-width="true" class="me-2"/>
             <template v-if="stackNode.nodeType != 'root'">{{ stackNode.nodeName }}</template>
             <template v-else>
@@ -96,9 +99,7 @@ function addChild() {
                     {{ ($root.agentList[stackNode.endpoint]["name"] === "" || $root.agentList[stackNode.endpoint]["name"] === null) ? stackNode.endpoint : $root.agentList[stackNode.endpoint]["name"] }}
                 </template>
             </template>
-            <font-awesome-icon v-if="isFolder" @click.prevent="toggle"
-                               :icon="isOpen ? 'chevron-circle-down' : 'chevron-circle-right'"/>
-            <font-awesome-icon v-if="!isStack" icon="plus" class="ms-2" @click.stop="addChild"/>
+            <font-awesome-icon v-if="!isStack && false" icon="plus" class="ms-2" @click.stop="addChild"/>
             <a class="rounded" v-if="isStack">
                 <font-awesome-icon :icon="stackNode?.stack?.isGitRepo ? 'code-branch' : 'file'" class="fa-fw"/>
             </a>

@@ -319,7 +319,7 @@ export default {
 
             for (let stackName in this.$root.completeStackList) {
                 const stack = this.$root.completeStackList[stackName];
-                if (statusNameShort(stack.status) === statusName) {
+                if (statusNameShort(stack.stack.status) === statusName) {
                     num += 1;
                 }
             }
