@@ -619,6 +619,7 @@ export class DockerSocketHandler extends AgentSocketHandler {
         if (!output) {
             return [];
         }
+        log.debug("docker-socket-handler", output);
 
         const lines = output.split("\n");
         const imageList = lines.map((line : string) => {
