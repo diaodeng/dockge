@@ -625,6 +625,7 @@ export class DockerSocketHandler extends AgentSocketHandler {
             try {
                 return JSON.parse(line);
             } catch (e) {
+                log.error("docker-socket-handler", line);
                 return null;
             }
         }).filter((img : unknown) => img !== null);
