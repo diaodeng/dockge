@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 COPY --chown=node:node  ./package.json ./package.json
 COPY --chown=node:node  ./package-lock.json ./package-lock.json
-RUN npm ci --omit=dev --registry=https://registry.npmmirror.com && npm cache clean --force
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev --registry=https://registry.npmmirror.com && npm cache clean --force
 
 ############################################
 # Build Frontend
@@ -27,8 +28,8 @@ RUN npm ci --omit=dev --registry=https://registry.npmmirror.com && npm cache cle
 FROM node:22-bookworm-slim AS build_frontend
 WORKDIR /
 COPY ./package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --registry=https://registry.npmmirror.com
 COPY . .
-RUN npm ci --registry=https://registry.npmmirror.com
 RUN npm run build:frontend
 
 ############################################
