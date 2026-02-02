@@ -619,12 +619,14 @@ export class DockerSocketHandler extends AgentSocketHandler {
         if (!output) {
             return [];
         }
+        log.debug("docker-socket-handler", output);
 
         const lines = output.split("\n");
         const imageList = lines.map((line : string) => {
             try {
                 return JSON.parse(line);
             } catch (e) {
+                log.error("docker-socket-handler", line);
                 return null;
             }
         }).filter((img : unknown) => img !== null);
