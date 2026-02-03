@@ -321,7 +321,7 @@ export default defineComponent({
         },
 
         stackName() {
-            return this.$parent.$parent.stack.name;
+            return this.$parent.$parent.stack.stackId;  // composeFileRelativePath
         },
 
         service() {
