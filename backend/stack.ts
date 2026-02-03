@@ -123,7 +123,7 @@ export class Stack {
     toSimpleJSON(endpoint : string) : object {
         return {
             name: this.name,
-            stackId: this.composeFileRelativePath,
+            stackId: this.stackId,
             status: this._status,
             tags: [],
             isManagedByDockge: this.isManagedByDockge,

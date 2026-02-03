@@ -1,5 +1,6 @@
 export interface Stack {
     name: string;
+    stackId: string;
     status: string;
     tags: Array<string>;
     isManagedByDockge: boolean;

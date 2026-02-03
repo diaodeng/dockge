@@ -62,6 +62,7 @@ function addChild() {
         endpoint: "",
         stack: {
             name: "stack name",
+            stackId: "",
             status: "",
             tags: [],
             isManagedByDockge: false,

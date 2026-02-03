@@ -508,6 +508,14 @@ export default {
         },
     },
     watch: {
+        "stack.name":{
+            handler() {
+                if (this.isAdd) {
+                    this.stack.stackId = this.stack.name;
+                    this.stack.composeFileRelativePath = this.stack.name;
+                }
+            }
+        },
         "stack.composeYAML": {
             handler() {
                 if (this.editorFocus) {
@@ -586,6 +594,7 @@ export default {
         } else {
             this.stack.name = this.$route.params.stackName;
             this.stack.composeFileRelativePath = this.$route.query.stackPath || "";
+            this.stack.stackId = this.stack.composeFileRelativePath;
             this.loadStack();
         }
 

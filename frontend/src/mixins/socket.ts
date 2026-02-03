@@ -137,7 +137,7 @@ export default defineComponent({
     methods: {
         expantStackNodes(endpoint: string, stackNode: StackNode, dataList: object){
             if (stackNode.stack){
-                dataList[stackNode.stack.composeFileRelativePath + "_" + endpoint] = stackNode;
+                dataList[stackNode.stack.stackId + "_" + endpoint] = stackNode;
             }
             for (let cStackNode of stackNode.children) {
 
