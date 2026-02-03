@@ -468,17 +468,17 @@ export default {
         },
 
         terminalName() {
-            if (!this.stack.name) {
+            if (!this.stack.stackId) {
                 return "";
             }
-            return getComposeTerminalName(this.endpoint, this.stack.name);
+            return getComposeTerminalName(this.endpoint, this.stack.stackId);
         },
 
         combinedTerminalName() {
-            if (!this.stack.name) {
+            if (!this.stack.stackId) {
                 return "";
             }
-            return getCombinedTerminalName(this.endpoint, this.stack.name);
+            return getCombinedTerminalName(this.endpoint, this.stack.stackId);
         },
 
         networks() {
@@ -490,10 +490,10 @@ export default {
         },
 
         retailStackName(){
-            if (this.stack.composeFileRelativePath){
-                return this.stack.composeFileRelativePath;
+            if (this.stack.stackId){
+                return this.stack.stackId;
             }else {
-                return this.stack.name;
+                return this.stack.composeFileRelativePath;
             }
             
         },
