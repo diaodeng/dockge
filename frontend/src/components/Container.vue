@@ -321,6 +321,7 @@ export default defineComponent({
         },
 
         stackName() {
+            console.log("this.$parent.$parent.stack", this.$parent.$parent.stack);
             return this.$parent.$parent.stack.stackId;  // composeFileRelativePath
         },
 

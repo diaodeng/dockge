@@ -117,7 +117,6 @@ function clearSearchText(evt: Event) {
             <div class="header-top">
                 <div class="placeholder" v-if="false"></div>
                 <div class="search-wrapper" style="flex-grow: 1">
-                    test
                     <a v-if="searchText === ''" class="search-icon">
                         <font-awesome-icon icon="search"/>
                     </a>
