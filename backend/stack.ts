@@ -318,11 +318,11 @@ export class Stack {
     }
 
     async updateStatus() {
-        let statusList = await Stack.getStatusList();
-        let status = Stack.findStackFromTree(this.composeFileRelativePath, Stack.managedStackList);
+        // let statusList = await Stack.getStatusList();
+        let stackNode = Stack.findStackFromTree(this.composeFileRelativePath, Stack.managedStackList);
 
-        if (status) {
-            this._status = status;
+        if (stackNode && stackNode.stack?.status ) {
+            this._status = stackNode.stack.status;
         } else {
             this._status = UNKNOWN;
         }
