@@ -20,6 +20,7 @@ export default defineConfig({
     root: "./frontend",
     build: {
         outDir: "../frontend-dist",
+        emptyOutDir: true
     },
     plugins: [
         AutoImport({
